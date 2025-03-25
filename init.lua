@@ -34,6 +34,10 @@ vim.opt.shortmess:append("I")
 vim.opt.autoread = true
 vim.opt.foldlevel = 999
 
+vim.opt.backup = true
+vim.opt.backupdir = vim.fn.expand("~/.config/nvim/backups")
+vim.opt.undofile = true
+vim.opt.undodir = vim.fn.expand("~/.config/nvim/undo")
 -- Key mappings
 vim.api.nvim_set_keymap('i', '<C-f>', '<C-O>:normal! za<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<C-f>', ':normal! za<CR>', { noremap = true, silent = true })
