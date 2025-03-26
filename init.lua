@@ -82,3 +82,18 @@ vim.cmd([[
 vim.opt.cursorline = true
 vim.opt.cursorcolumn = true
 require('colorizer').setup({'*'})
+
+function EnableTransparency()
+	vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
+	vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
+	vim.api.nvim_set_hl(0, "FloatBorder", { bg = "none" })
+	vim.api.nvim_set_hl(0, "Pmenu", { bg = "none" })
+end
+
+function DisableTransparency()
+	local last_colorscheme = require('last-color').recall() or 'default'
+  vim.cmd.colorscheme(last_colorscheme)
+end
+
+vim.api.nvim_create_user_command("EnableTransparency", EnableTransparency, {})
+vim.api.nvim_create_user_command("DisableTransparency",DisableTransparency,{})
