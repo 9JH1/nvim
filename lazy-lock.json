@@ -1,6 +1,7 @@
 {
   "ale": { "branch": "master", "commit": "7fcc0548b03e1c7d7d269af76ea3e27b9a59f8bd" },
   "barbar.nvim": { "branch": "master", "commit": "53b5a2f34b68875898f0531032fbf090e3952ad7" },
+  "candyland.nvim": { "branch": "main", "commit": "10fb6b94401ee1d4c1ef498cdeaef8bff8f44484" },
   "indent-blankline.nvim": { "branch": "master", "commit": "005b56001b2cb30bfa61b7986bc50657816ba4ba" },
   "last-color.nvim": { "branch": "main", "commit": "000e3e50047602f4b9725dd33aff631018592595" },
   "lazy.nvim": { "branch": "main", "commit": "6c3bda4aca61a13a9c63f1c1d1b16b9d3be90d7a" },
