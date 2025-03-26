@@ -1,9 +1,0 @@
-@import "~/.cache/wal/colors-rofi-dark.rasi"
-* {
-	background: #ff0000;
-	background-alt: #ff0000;
-	foreground: @normal-foreground;
-	selected: #ff0000;
-	active: #ff0000;
-	urgent: #ff0000;
-}
