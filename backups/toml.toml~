@@ -1,0 +1,56 @@
+[apps]
+type="tab"
+formal_name="app"
+title="Apps"
+[ranger]
+type="mod"
+title="Ranger"
+description = "CLI File Manager"
+parent="app"
+
+[mc]
+type="mod"
+tile="MC"
+description = "CLI File Manager"
+parent="app"
+
+[discordo]
+type="mod"
+title="Discordo"
+description = "Terminal Discord Client"
+parent="app"
+
+[websites]
+type="tab"
+formal_name="website"
+name="Websites"
+
+[google]
+type="mod"
+url="https://google.com"
+parent="website"
+description="Website Search"
+
+[commands]
+type="tab"
+formal_name="command"
+name="Commands"
+
+[echohelloworld]
+type="mod"
+exec="echo Hello World"
+tab="command"
+parent="command"
+exit=1
+
+
+[settings]
+foreground          = "#ff0000"
+background          = "#00ff00"
+selected_foreground = "#00ff00"
+selected_background = "#ff0000"
+
+
+
+
+

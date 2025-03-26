@@ -1,0 +1,340 @@
+ /*
+ * CTGreet Version 1.1
+ * Customizable Terminal Greeter (WIP)
+ * * * * * * * * * * * * * * * *
+ * Written by 3hy (@9jh1)
+ *
+ */
+
+/* retardation
+ * * * * * * * 
+ * -  tryed to free_toml internal tables which caused un-traceable segmentation faults
+ *    this is resolved by reserving use of free_toml to the main config, after a few
+ *    hours of debugging ive come to this conclution.
+ */
+
+#include "toml.c"
+#include <stdio.h>
+#include <unistd.h>
+#include <signal.h>
+#include <string.h>
+#include <termios.h>
+
+#define BUFFER_SIZE 256
+
+int verbose=0;
+
+void help(){ 
+	// help dialog goes here
+	printf("ctgreet [OPTIONS]\n");
+	printf("Customizable Terminal Greeter\n");
+	printf("* * * * * * * * * * * * * * *\n");
+	printf("OPTIONS:\n");
+	printf("argument          | type  | description\n");
+	printf("--config          | <str> | set config file\n");
+	printf("--help            |       | show this dialog\n");
+	printf("--validate-config |       | validate config file (show config issues)\n");
+
+	exit(0);
+}
+
+int achar(){
+	static struct termios oldt, newt;
+	tcgetattr(STDIN_FILENO,&oldt);
+	newt=oldt;
+	newt.c_lflag &= ~(ICANON | ECHO );
+	tcsetattr(STDIN_FILENO,TCSANOW,&newt);
+	int ch=getchar();
+	tcsetattr(STDIN_FILENO,TCSANOW,&oldt);
+	return ch;
+}
+
+char *systemc(const char *command){
+    FILE *fp = popen(command, "r");
+    if (fp == NULL){
+        perror("popen");
+        return NULL;
+    }
+    char *output = MALLOC(BUFFER_SIZE);
+    if (output == NULL){
+        pclose(fp);
+        return NULL;
+    }
+    size_t length = 0;
+    size_t buffer_size = BUFFER_SIZE;
+    while (fgets(output + length, (int)(buffer_size - length), fp) != NULL){
+        length = strlen(output);
+        if (length >= buffer_size - 1){
+            buffer_size *= 2; // resize the buffer if needed
+            char *new_output = realloc(output, buffer_size);
+            if (new_output == NULL){
+                perror("realloc");
+                FREE(output);
+                pclose(fp);
+                return NULL;
+            }
+            output = new_output;
+        }
+    }
+    pclose(fp);
+    if (length < buffer_size - 1) output[length] = '\0';
+    else output[buffer_size - 1] = '\0';
+    return output;
+}
+#define logc(l,msg1,msg2) logc_impl(l,msg1,msg2,__LINE__)
+void logc_impl(int l,char *msg1, char*msg2,int line){
+	/* Level:
+	 * 0 = Fatal Error, red text, will quit
+	 * 1 = Warning, orange text, will continue
+	 * 2 = Fatal Info, normal text color, will quit
+	 * 3 = Error, red text, will continue
+	 * 4 = Info, normal text color, will continue
+	 * 5 = Verbose, normal text color, will continue
+	 */
+
+	char *level="";
+	int quit=0;
+	if(l==0) {
+		quit=1;
+		printf("\033[31m");
+		level = "FATAL ERROR";
+	} else if (l==1) {
+		printf("\033[43m");
+		level = "WARNING";
+	} else if (l==2){
+		quit=1;
+		level = "FATAL INFO";
+	} else  if (l==3){
+		printf("\033[31m");
+		level="ERROR";
+	} else if (l==4){
+		level="INFO";
+	}
+
+	if(l!=5) printf("Line: %d, [%s] - %s %s\033[0m\n",line,level,msg1,msg2);
+	else printf("Line: %d, [VERBOSE] - %s",line,msg1);
+	if(quit) exit(1);
+	else fflush(stdout);
+}
+
+struct module {
+	char* name;
+	toml_table_t *local;
+	char *modifyer;
+};
+
+struct module_amount {
+	int tab;
+	int mod;
+	int all;
+};
+
+void onExit(){ // exit handler goes here
+	printf("CTRL+C pressed, Exiting..");
+	fflush(stdout);
+	exit(0);
+}
+
+#define db() db_impl(__LINE__)
+void db_impl(int line){
+	printf("debug from %d\n",line);
+	fflush(stdout);
+}
+
+int main(int argc, char* argv[]){
+	signal(SIGINT,onExit);
+	char* configFile="No Config Provided";
+	char *foreground=NULL,
+			 *background=NULL,
+			 *selected_foreground=NULL,
+			 *selected_background=NULL;
+	int dump_toml_err=0;
+	// iterate through the arguments
+	if(argc == 1){
+		help();
+	}else{
+		for(int argi=0;argi < argc;argi++){ // for each argument
+			char* argl = argv[argi];
+			char* argn = argv[argi+1];
+			if(strcmp(argl,"--config")==0) configFile = argn;
+			else if (strcmp(argl,"--help")==0) help();
+			else if (strcmp(argl,"--validate-config")==0) dump_toml_err=1; 
+		}
+	}
+	// load the config file
+	if(configFile!=NULL){ // main code goes here
+		// load the config toml
+		FILE *fptr =fopen(configFile,"r");
+		char errbuf[256];
+
+		if(fptr){ // parse config \/
+			toml_table_t *config = toml_parse_file(fptr,errbuf,sizeof(errbuf));
+			if(config){ // if the config exists, continue
+				if(dump_toml_err) {
+								toml_free(config);
+								logc(2,"TOML","file parsed successfully!");
+				};
+				char buffer[256];
+				struct module_amount moduleCount;
+				moduleCount.tab = 0;
+				moduleCount.mod = 0;
+				moduleCount.all = 0;
+				fseek(fptr, 0, SEEK_SET); // reset eof for 1st call
+				while(fgets(buffer,sizeof(buffer),fptr)){
+					if(buffer[0] == '['){
+						moduleCount.all++; 
+						// now we could put all the dynamic allocation in here but
+						// I value my sanity so nah im gonna inefficently loop
+						if(strlen(buffer)>2){
+							buffer[strlen(buffer)-2]='\0';
+							char *line = buffer+1;
+							toml_table_t *module = toml_table_in(config,line);
+							if (module){
+								toml_datum_t type_datum = toml_string_in(module,"type");
+								char *type="";
+								if(type_datum.ok) type = type_datum.u.s;
+								if(strcmp(type,"tab")==0) moduleCount.tab++;
+								else if(strcmp(type,"mod")==0) moduleCount.mod++;
+							}
+						}
+					}
+				} // set the module amounts
+				struct module *modules_tab = MALLOC(moduleCount.tab * sizeof(struct module));
+				struct module *modules_mod = MALLOC(moduleCount.mod * sizeof(struct module));
+				int mod_index=0;
+				int tab_index=0;
+				fseek(fptr, 0, SEEK_SET); // reset EOF
+				while (fgets(buffer,sizeof(buffer), fptr)){
+					if(buffer[0] == '['){ // if starts with [
+						if (strlen(buffer)>2){ // and >2 char
+							buffer[strlen(buffer)-2] = '\0'; // del last char
+							char *line = buffer+1; // get the module type \/
+							toml_table_t *module = toml_table_in(config,line);
+							if(module){ // if the module exists in config 
+								toml_datum_t  type_datum = toml_string_in(module,"type");
+								char *type="";
+								if(type_datum.ok) type=type_datum.u.s;
+								if(strcmp(type,"tab")==0){
+									toml_datum_t formal_datum = toml_string_in(module,"formal_name");
+									modules_tab[tab_index].local = module;
+									modules_tab[tab_index].name = STRDUP(line); 
+									if(formal_datum.ok){
+										modules_tab[mod_index].modifyer = STRDUP(formal_datum.u.s);
+										FREE(formal_datum.u.s);
+									} else {
+										exit(0);
+									}
+									tab_index++; // keep a local index
+								} else if (strcmp(type,"mod")==0){
+									toml_datum_t parent_datum = toml_string_in(module,"parent");
+									modules_mod[mod_index].local = module;
+									modules_mod[mod_index].name = STRDUP(line);
+									if(parent_datum.ok){
+											modules_mod[mod_index].modifyer = STRDUP(parent_datum.u.s);
+											FREE(parent_datum.u.s);
+									} else {
+										// TODO error checking here
+										exit(0);
+									}
+									mod_index++;
+								}
+								FREE(type_datum.u.s); // clean up
+							} 
+						} else {
+							// TODO error checking here
+							printf("issue with module definition\n");
+						}
+					}
+				}
+				fclose(fptr);
+			
+				//define settings table
+				toml_table_t *settings = toml_table_in(config,"settings");
+				if(settings){
+					// create settings datum_t
+					toml_datum_t t_foreground = toml_string_in(settings,"foreground");
+					toml_datum_t t_background = toml_string_in(settings,"background");
+					toml_datum_t t_selected_foreground = toml_string_in(settings,"selected_foreground");
+					toml_datum_t t_selected_background = toml_string_in(settings,"selected_background");
+					// assign globals
+					if(t_foreground.ok && foreground==NULL){
+						foreground = t_foreground.u.s;
+					} 
+					if(t_background.ok && background==NULL){
+						background = t_background.u.s;
+					}
+					if(t_selected_foreground.ok && selected_foreground==NULL){
+						selected_foreground = t_selected_foreground.u.s;
+					}
+					if(t_selected_background.ok && selected_background==NULL){
+						selected_background = t_selected_background.u.s;	
+					}
+				}
+
+				int tab_selected=2,
+						tab_selected_old=0,
+						mod_selected=0;
+
+
+
+
+				for(int i=0;i<tab_index;i++){
+					printf("%s\n",modules_tab[i].modifyer);
+				}	
+				fflush(stdout);
+
+
+				exit(1);
+				while(1){
+					int local_mod_count=0, local_mod_index=0;
+					if(tab_selected != tab_selected_old){
+						mod_selected=0;
+						tab_selected_old=tab_selected;
+					}
+					for(int i=0;i<tab_index;i++){
+						if(i == tab_selected){
+							printf("->");
+						}
+						printf("%s ",modules_tab[i].name);
+					}
+					printf("\n");
+					db();
+					for(int i=0;i<mod_index;i++){ // count the mods
+						db();
+						//if(strcmp(modules_mod[i].modifyer,modules_tab[tab_selected].modifyer)==0){
+						//	local_mod_count++;
+						//}
+					}
+					db();
+					for(int i=0;i<mod_index;i++){
+						db();
+						if(strcmp(modules_mod[i].modifyer,modules_tab[tab_selected].modifyer)==0){
+							db();
+							if(mod_selected == local_mod_index){  
+								printf("->");
+							}
+							local_mod_index++;
+							printf("tset\n");
+						}
+					}
+					int ch = achar();
+					/*if(ch == 'C'){
+						if(tab_selected==tab_index-1) tab_selected == 0;
+						else tab_selected++;
+					}*/
+
+					fflush(stdout);
+				}
+				
+
+				toml_free(config);
+			} else {
+				if(dump_toml_err){
+					if(strlen(errbuf)>1) printf("%s\n",errbuf);
+					else logc(1,"VALIDATOR","CONFIG FILE COULD NOT BE VALIDATED, maybe rewrite your file...");
+				} else logc(0,"CONFIG","ISSUE WITH CONFIG FILE TOML run the same command with --validate-config for more information");
+			}
+		} else logc(0,"FILE ERROR","error occured with opening file");
+	} else logc(0,"CONFIG","config variable was not set");
+	return 0;
+}

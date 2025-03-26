@@ -1,0 +1,1 @@
+return {'dylanaraps/wal.vim'}
