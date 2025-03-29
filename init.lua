@@ -1,5 +1,4 @@
 -- setup plugins
-vim.cmd("TSToggle highlight") -- fix CellularAutomaton for alacritty emulator
 require("config.lazy")
 local theme = require('last-color').recall() or 'default'
 vim.cmd.colorscheme(theme)
@@ -63,6 +62,7 @@ end
 
 -- set fold 
 vim.opt.foldtext = "v:lua.MyFoldText()"
+vim.cmd("TSToggle highlight")
 
 -- vim.keymap.del('i', '<C-r>')
 vim.api.nvim_set_keymap('n', '<C-a>', ':tabprev<CR>', { noremap = true, silent = true })
@@ -71,6 +71,7 @@ vim.api.nvim_set_keymap('n', '<C-t>', ':tabnew<CR>', { noremap = true, silent = 
 vim.api.nvim_set_keymap('n', '<C-w>', ':tabclose<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<C-S-c>', ':tabnew | :tabprevious<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<C-g>',':Telescope colorscheme enable_preview=true<CR>',{noremap=true,silent=true})
+
 
 vim.cmd([[
   augroup TabHistory
