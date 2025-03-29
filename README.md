@@ -10,7 +10,7 @@ mv nvim $HOME/.config/nvim
 1. Pressing **Control+G** will open up the telescope colorscheme previewer that lets you look though colorschemes and preview each. These dotfiles come with a few theme plugins, those being:<br>
     - [vim-neon-dark](https://github.com/nonetallt/vim-neon-dark) *(simple amoled pink theme)*
     - [neopywal](https://github.com/RedsXDD/neopywal.nvim) *(adapts to pywal color)*
-    - [candyland](https://github.com/AmberLehmann/candyland.nvi) *(vibrant pink, blue and white theme)*
+    - [candyland](https://github.com/AmberLehmann/candyland.nvim) *(vibrant pink, blue and white theme)*
 2. **EnableTransparencey** and **DisableTransparencey** commands, these custom commands let you toggle the background of vim to be semi-transparent, the background transparency often depends on the terminal emulator, but if configured with a composite manager you can see through vim to your desktop. 
 3. [**ALE**](https://github.com/dense-analysis/ale), this plugin shows errors and warnings inside your code files, very useful in languages like C that you have to compile as the linter tells you issues beforehand.
 4. [**last-color**](https://github.com/raddari/last-color.nvim), this plugin lets you save the last used colorscheme, this has allowed my config to re-enable the last used colorscheme.
