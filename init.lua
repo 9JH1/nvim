@@ -1,5 +1,5 @@
 -- setup plugins
-
+vim.cmd("TSToggle highlight") -- fix CellularAutomaton for alacritty emulator
 require("config.lazy")
 local theme = require('last-color').recall() or 'default'
 vim.cmd.colorscheme(theme)
