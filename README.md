@@ -6,6 +6,13 @@ mv $HOME/.config/nvim $HOME/.config/nvim_old
 git clone https://github.com/9jh1/nvim
 mv nvim $HOME/.config/nvim
 ```
+## Install (Windows)
+to install my config on windows I will go through how to install neovim for windows too.
+1. go to the [offical neovim github releases page](https://github.com/neovim/neovim/releases) and download the [nvim-win64.zip](https://github.com/neovim/neovim/releases/download/nightly/nvim-win64.zip) archive from the assets menu, next go to the [offical github download website](https://git-scm.com/downloads), click on windows and select 64-bit Git for Windows Portable.
+2. make a new folder on your desktop or anywhere else and call it neovim, run the downloaded git portable installer and make it so it is installed to a folder called "git-portable" inside of the nvim folder on your desktop. next locate the downloaded nvim-win64.zip and extract it to the same folder on your desktop
+3. go to `%APPDATA%/Local/` and make a new folder called `nvim`, now you can add your config, up the top of the page click on the "Code" dropdown then "Download ZIP", extract this file anywhere, look inside this zip until you find the folder `lua` from the directory outside of `lua` move the `lua` folder and everything inside it to the `%APPDATA%/Local/nvim` folder.
+4. Finally go to `%APPDATA%/Local/nvim` and open `init.lua` for editing, add this to the very top `vim.env.PATH = "C:\\Users\\_3hy\\Downloads\\git-portable\\cmd;" .. vim.env.PATH` and save the file.
+5. Go to your desktop and go into `nvim/bin` and there should be a `nvim.exe` file, run this and the lazy.nvim plugin will install the rest of the config :D.
 ## Features/Plugins:
 1. Pressing **Control+G** will open up the telescope colorscheme previewer that lets you look though colorschemes and preview each. These dotfiles come with a few theme plugins, those being:<br>
     - [vim-neon-dark](https://github.com/nonetallt/vim-neon-dark) *(simple amoled pink theme)*
