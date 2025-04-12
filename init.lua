@@ -1,3 +1,4 @@
+
 -- setup plugins
 require("config.lazy")
 local theme = require('last-color').recall() or 'default'
@@ -67,7 +68,6 @@ vim.cmd("TSToggle highlight")
 -- vim.keymap.del('i', '<C-r>')
 vim.api.nvim_set_keymap('n', '<C-a>', ':tabprev<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<C-d>', ':tabnext<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<C-t>', ':tabnew<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<C-w>', ':tabclose<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<C-S-c>', ':tabnew | :tabprevious<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<C-g>',':Telescope colorscheme enable_preview=true<CR>',{noremap=true,silent=true})
@@ -99,3 +99,24 @@ end
 
 vim.api.nvim_create_user_command("EnableTransparency", EnableTransparency, {})
 vim.api.nvim_create_user_command("DisableTransparency",DisableTransparency,{})
+
+function emmet_on_current_line()
+  -- Ask for Emmet abbreviation input
+  local user_input = vim.fn.input("Insert Emmet: ")
+
+  -- Run Emmet on the current line (without selecting visually)
+  vim.cmd(':Emmet ' .. user_input)
+  vim.cmd('startinsert')  -- Return to insert mode safely
+end
+
+-- Create the user command for Emmet
+vim.api.nvim_create_user_command("EmmetPrompt", emmet_on_current_line, {})
+-- Bind Ctrl+E in insert mode to trigger the EmmetPrompt function
+vim.api.nvim_set_keymap('i', '<C-E>', '<Esc>:EmmetPrompt<CR>', { noremap = true, silent = true })
+require("neo-tree").setup({
+window = {
+		position = "float"
+  }
+})
+
+vim.api.nvim_set_keymap("i", '<C-O>','<Esc>:Neotree<CR>', { noremap = true, silent = true })

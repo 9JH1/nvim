@@ -5,6 +5,7 @@ these are my nvim dotfiles, a perfect config and a even more perfect ide adds fo
 mv $HOME/.config/nvim $HOME/.config/nvim_old
 git clone https://github.com/9jh1/nvim
 mv nvim $HOME/.config/nvim
+npm install -g live-server
 ```
 ## Install (Windows)
 to install my config on windows I will go through how to install neovim for windows too.
