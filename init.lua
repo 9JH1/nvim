@@ -43,7 +43,6 @@ vim.api.nvim_set_keymap('i', '<C-f>', '<C-O>:normal! za<CR>', { noremap = true, 
 vim.api.nvim_set_keymap('n', '<C-f>', ':normal! za<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('i', '<Esc>[Z', '<Esc>:normal! gT<CR>i', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<Esc>[Z', ':normal! gT<CR>', { noremap = true, silent = true })
-
 -- Enable filetype detection and plugins
 vim.cmd([[
   filetype plugin on
@@ -69,8 +68,8 @@ vim.cmd("TSToggle highlight")
 vim.api.nvim_set_keymap('i', '<C-a>', ':tabprev<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('i', '<C-d>', ':tabnext<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('i', '<C-w>', ':tabclose<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<C-g>',':Telescope colorscheme enable_preview=true<CR>',{noremap=true,silent=true})
-
+vim.api.nvim_set_keymap('i', '<C-g>',':Telescope colorscheme enable_preview=true<CR>',{noremap=true,silent=true})
+vim.api.nvim_set_keymap('i', '<C-x>',':Telescope live_grep enable_preview=true<CR>',{noremap=true,silent=true})
 
 vim.cmd([[
   augroup TabHistory
