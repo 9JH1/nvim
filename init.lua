@@ -1,5 +1,3 @@
-
--- setup plugins
 require("config.lazy")
 local theme = require('last-color').recall() or 'default'
 vim.cmd.colorscheme(theme)
@@ -8,14 +6,15 @@ require('lualine').setup{
 			theme = "auto"
 	}	
 }
+
 wilder = require("wilder")
  wilder.set_option('renderer', wilder.popupmenu_renderer({
   pumblend = 20,
 }))
+
 -- set defaults
 vim.cmd("call wilder#setup({'modes': [':', '/', '?']})")
--- set vim config
-vim.o.background = "dark" -- or "light" for light mode
+vim.o.background = "dark"
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 vim.opt.termguicolors = true
@@ -33,16 +32,19 @@ vim.opt.swapfile = false
 vim.opt.shortmess:append("I")
 vim.opt.autoread = true
 vim.opt.foldlevel = 999
-
 vim.opt.backup = true
 vim.opt.backupdir = vim.fn.expand("~/.config/nvim/backups")
 vim.opt.undofile = true
 vim.opt.undodir = vim.fn.expand("~/.config/nvim/undo")
+vim.opt.foldtext = "v:lua.MyFoldText()"
+vim.cmd("TSToggle highlight")
+
+-- activate the cursor option
+vim.opt.cursorline = true
+vim.opt.cursorcolumn = true
+require('colorizer').setup({'*'})
+
 -- Key mappings
-vim.api.nvim_set_keymap('i', '<C-f>', '<C-O>:normal! za<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<C-f>', ':normal! za<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('i', '<Esc>[Z', '<Esc>:normal! gT<CR>i', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<Esc>[Z', ':normal! gT<CR>', { noremap = true, silent = true })
 -- Enable filetype detection and plugins
 vim.cmd([[
   filetype plugin on
@@ -61,15 +63,18 @@ function MyFoldText()
 end
 
 -- set fold 
-vim.opt.foldtext = "v:lua.MyFoldText()"
-vim.cmd("TSToggle highlight")
 
--- vim.keymap.del('i', '<C-r>')
-vim.api.nvim_set_keymap('i', '<C-a>', ':tabprev<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('i', '<C-d>', ':tabnext<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('i', '<C-w>', ':tabclose<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('i', '<C-g>',':Telescope colorscheme enable_preview=true<CR>',{noremap=true,silent=true})
-vim.api.nvim_set_keymap('i', '<C-x>',':Telescope live_grep enable_preview=true<CR>',{noremap=true,silent=true})
+
+vim.api.nvim_set_keymap('n', '<C-a>', '<ESC>:BufferPrevious<CR>', {noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<C-d>', '<ESC>:BufferNext<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<C-g>', '<ESC>:Telescope colorscheme enable_preview=true<CR>',{noremap=true,silent=true})
+vim.api.nvim_set_keymap('n', '<C-w>', '<ESC>:BufferClose<CR>', {noremap = true, silent = true})
+vim.api.nvim_set_keymap('i', '<C-E>', '<Esc>:EmmetPrompt<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap("n", '<C-O>','<Esc>:Neotree<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('i', '<C-f>', '<C-O>:normal! za<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<C-f>', '<ESC>:', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<C-TAB>', '<ESC>:BufferNext<CR>', {noremap = true, silent = true})
+
 
 vim.cmd([[
   augroup TabHistory
@@ -78,10 +83,7 @@ vim.cmd([[
   augroup END
 ]])
 
--- activate the cursor option
-vim.opt.cursorline = true
-vim.opt.cursorcolumn = true
-require('colorizer').setup({'*'})
+
 
 function EnableTransparency()
 	vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
@@ -90,32 +92,32 @@ function EnableTransparency()
 	vim.api.nvim_set_hl(0, "Pmenu", { bg = "none" })
 end
 
+
 function DisableTransparency()
 	local last_colorscheme = require('last-color').recall() or 'default'
   vim.cmd.colorscheme(last_colorscheme)
 end
 
+
 vim.api.nvim_create_user_command("EnableTransparency", EnableTransparency, {})
 vim.api.nvim_create_user_command("DisableTransparency",DisableTransparency,{})
 
-function emmet_on_current_line()
-  -- Ask for Emmet abbreviation input
-  local user_input = vim.fn.input("Insert Emmet: ")
 
-  -- Run Emmet on the current line (without selecting visually)
+function emmet_on_current_line()
+  local user_input = vim.fn.input("Insert Emmet: ")
   vim.cmd(':Emmet ' .. user_input)
-  vim.cmd('startinsert')  -- Return to insert mode safely
+  vim.cmd('startinsert')
 end
 
--- Create the user command for Emmet
 vim.api.nvim_create_user_command("EmmetPrompt", emmet_on_current_line, {})
+
 -- Bind Ctrl+E in insert mode to trigger the EmmetPrompt function
-vim.api.nvim_set_keymap('i', '<C-E>', '<Esc>:EmmetPrompt<CR>', { noremap = true, silent = true })
 require("neo-tree").setup({
 window = {
 		position = "float"
   }
 })
+
 require("presence").setup({
     -- General options
     auto_update         = true,                       -- Update activity based on autocmd events (if `false`, map or manually execute `:lua package.loaded.presence:update()`)
@@ -139,4 +141,3 @@ require("presence").setup({
     workspace_text      = "Working on %s",            -- Format string rendered when in a git repository (either string or function(project_name: string|nil, filename: string): string)
     line_number_text    = "Line %s out of %s",        -- Format string rendered when `enable_line_number` is set to true (either string or function(line_number: number, line_count: number): string)
 })
-vim.api.nvim_set_keymap("i", '<C-O>','<Esc>:Neotree<CR>', { noremap = true, silent = true })
