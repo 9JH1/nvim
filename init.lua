@@ -25,7 +25,7 @@ vim.opt.mouse = "a"
 vim.opt.nu = true
 vim.opt.wrap = false
 vim.opt.numberwidth = 1
-vim.opt.foldmethod = "syntax"
+vim.opt.foldmethod = "expr"
 vim.opt.tabstop = 2
 vim.opt.shiftwidth = 2
 vim.opt.swapfile = false
@@ -72,7 +72,6 @@ vim.api.nvim_set_keymap('n', '<C-w>', '<ESC>:BufferClose<CR>', {noremap = true, 
 vim.api.nvim_set_keymap('i', '<C-E>', '<Esc>:EmmetPrompt<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap("n", '<C-O>','<Esc>:Neotree<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('i', '<C-f>', '<C-O>:normal! za<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<C-f>', '<ESC>:', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<C-TAB>', '<ESC>:BufferNext<CR>', {noremap = true, silent = true})
 
 
@@ -86,7 +85,7 @@ vim.cmd([[
 
 
 function EnableTransparency()
-	vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
+vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
 	vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
 	vim.api.nvim_set_hl(0, "FloatBorder", { bg = "none" })
 	vim.api.nvim_set_hl(0, "Pmenu", { bg = "none" })
@@ -113,10 +112,18 @@ vim.api.nvim_create_user_command("EmmetPrompt", emmet_on_current_line, {})
 
 -- Bind Ctrl+E in insert mode to trigger the EmmetPrompt function
 require("neo-tree").setup({
-window = {
-		position = "float"
-  }
+	window = {
+		position = "left",
+		auto_expand_width = true,
+		width = 0
+  },
+	source_selector = {
+		winbar = false,
+		statusline = false
+	}
 })
+
+vim.cmd("Neotree right")
 
 require("presence").setup({
     -- General options
