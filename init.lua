@@ -15,17 +15,17 @@ wilder = require("wilder")
 -- set defaults
 vim.cmd("call wilder#setup({'modes': [':', '/', '?']})")
 vim.o.background = "dark"
-vim.g.loaded_netrw = 1
-vim.g.loaded_netrwPlugin = 1
+-- vim.g.loaded_netrw = 1
+-- vim.g.loaded_netrwPlugin = 1
 vim.opt.termguicolors = true
 vim.opt.guicursor= "n-v-c-i:block"
 vim.opt.syntax = "on"
-vim.opt.rnu = true
+-- vim.opt.rnu = true
 vim.opt.mouse = "a"
 vim.opt.nu = true
 vim.opt.wrap = false
 vim.opt.numberwidth = 1
-vim.opt.foldmethod = "expr"
+vim.opt.foldmethod = "syntax"
 vim.opt.tabstop = 2
 vim.opt.shiftwidth = 2
 vim.opt.swapfile = false
