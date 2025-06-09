@@ -86,7 +86,7 @@ vim.opt.termguicolors = true
 
 -- vim.opt.guicursor= "n-v-c-i:block"
 vim.opt.syntax = "on"
-
+vim.opt.signcolumn = "yes"
 -- vim.opt.rnu = true
 vim.opt.mouse = "a"
 vim.opt.nu = true
