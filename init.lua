@@ -2,24 +2,91 @@ require("config.lazy")
 local theme = require('last-color').recall() or 'default'
 vim.cmd.colorscheme(theme)
 require('lualine').setup{
+	source_selector = {
+		winbar = false,
+    statusline = false
+  },
 	options = {
-			theme = "auto"
+			theme = "auto",
+			disabled_filetypes = {
+      	"neo-tree"
+    	},
 	}	
 }
-
 wilder = require("wilder")
  wilder.set_option('renderer', wilder.popupmenu_renderer({
   pumblend = 20,
 }))
 
+
+require("scrollbar").setup({
+    show = true,
+    show_in_active_only = false,
+    set_highlights = true,
+    folds = 1000, -- handle folds, set to number to disable folds if no. of lines in buffer exceeds this
+    max_lines = false, -- disables if no. of lines in buffer exceeds this
+    hide_if_all_visible = false, -- Hides everything if all lines are visible
+    throttle_ms = 100,
+    handle = {
+        text = " ",
+        blend = 30, -- Integer between 0 and 100. 0 for fully opaque and 100 to full transparent. Defaults to 30.
+        color = nil,
+        color_nr = nil, -- cterm
+        highlight = "CursorColumn",
+        hide_if_all_visible = true, -- Hides handle if all lines are visible
+    },
+    excluded_buftypes = {
+        "terminal",
+    },
+    excluded_filetypes = {
+        "blink-cmp-menu",
+        "dropbar_menu",
+        "dropbar_menu_fzf",
+        "DressingInput",
+        "cmp_docs",
+        "cmp_menu",
+        "noice",
+        "prompt",
+        "TelescopePrompt",
+    },
+    autocmd = {
+        render = {
+            "BufWinEnter",
+            "TabEnter",
+            "TermEnter",
+            "WinEnter",
+            "CmdwinLeave",
+            "TextChanged",
+            "VimResized",
+            "WinScrolled",
+        },
+        clear = {
+            "BufWinLeave",
+            "TabLeave",
+            "TermLeave",
+            "WinLeave",
+        },
+    },
+    handlers = {
+        cursor = false,
+        diagnostic = false,
+        gitsigns = false, -- Requires gitsigns
+        handle = true,
+        search = false, -- Requires hlslens
+        ale = false, -- Requires ALE
+    },
+})
+
 -- set defaults
 vim.cmd("call wilder#setup({'modes': [':', '/', '?']})")
 vim.o.background = "dark"
--- vim.g.loaded_netrw = 1
--- vim.g.loaded_netrwPlugin = 1
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
 vim.opt.termguicolors = true
-vim.opt.guicursor= "n-v-c-i:block"
+
+-- vim.opt.guicursor= "n-v-c-i:block"
 vim.opt.syntax = "on"
+
 -- vim.opt.rnu = true
 vim.opt.mouse = "a"
 vim.opt.nu = true
@@ -40,8 +107,8 @@ vim.opt.foldtext = "v:lua.MyFoldText()"
 vim.cmd("TSToggle highlight")
 
 -- activate the cursor option
-vim.opt.cursorline = true
-vim.opt.cursorcolumn = true
+vim.opt.cursorline = false 
+vim.opt.cursorcolumn = false
 require('colorizer').setup({'*'})
 
 -- Key mappings
@@ -63,17 +130,24 @@ function MyFoldText()
 end
 
 -- set fold 
+function ShowCursor()
+  vim.opt.cursorline = true
+  vim.opt.cursorcolumn = true
+  vim.defer_fn(function()
+    vim.opt.cursorline = false
+    vim.opt.cursorcolumn = false
+  end, 3000)
+end
 
+vim.api.nvim_create_user_command("ShowCursor",ShowCursor,{})
 
 vim.api.nvim_set_keymap('n', '<C-a>', '<ESC>:BufferPrevious<CR>', {noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<C-d>', '<ESC>:BufferNext<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<C-g>', '<ESC>:Telescope colorscheme enable_preview=true<CR>',{noremap=true,silent=true})
 vim.api.nvim_set_keymap('n', '<C-w>', '<ESC>:BufferClose<CR>', {noremap = true, silent = true})
 vim.api.nvim_set_keymap('i', '<C-E>', '<Esc>:EmmetPrompt<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap("n", '<C-O>','<Esc>:Neotree<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('i', '<C-f>', '<C-O>:normal! za<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<C-TAB>', '<ESC>:BufferNext<CR>', {noremap = true, silent = true})
-
+vim.api.nvim_set_keymap("n", '<C-O>', '<Esc>:Neotree<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('i', '<C-h>', '<ESC>:ShowCursor<CR>', {noremap = true, silent = true})
 
 vim.cmd([[
   augroup TabHistory
@@ -90,7 +164,6 @@ vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
 	vim.api.nvim_set_hl(0, "FloatBorder", { bg = "none" })
 	vim.api.nvim_set_hl(0, "Pmenu", { bg = "none" })
 end
-
 
 function DisableTransparency()
 	local last_colorscheme = require('last-color').recall() or 'default'
