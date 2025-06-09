@@ -39,6 +39,7 @@ require("scrollbar").setup({
         "terminal",
     },
     excluded_filetypes = {
+				"neo-tree",
         "blink-cmp-menu",
         "dropbar_menu",
         "dropbar_menu_fzf",
@@ -196,7 +197,7 @@ require("neo-tree").setup({
 	}
 })
 
-vim.cmd("Neotree right")
+vim.cmd("Neotree right") -- start neotree on the right
 
 require("presence").setup({
     -- General options
