@@ -37,7 +37,7 @@ end
 
 -- SET VALUES
 vim.notify = require("notify")
-opt.laststatus = 0
+opt.laststatus = 3
 vim.opt.fillchars = { fold = " " }
 opt.background = "dark"
 opt.termguicolors = true
@@ -129,7 +129,14 @@ require('lualine').setup({
 
 
 	sections = {
-		lualine_a = {{'buffers', show_filename_only = true, mode = 2}},
+		lualine_a = {
+			{
+				'buffers',
+				show_filename_only = true,
+				mode = 2,
+				use_mode_colors = true,
+			}
+		},
 		lualine_b = {},
     lualine_c = {},
 		lualine_x = {},
@@ -142,8 +149,8 @@ require('lualine').setup({
     theme = 'auto',
     icons_enabled = true,
     section_separators = {
-      left = '',
-      right = ''
+      left = ' ',
+      right = ''
     }
   }
 })
@@ -153,6 +160,7 @@ require('nvim-treesitter.configs').setup {
   highlight = { enable = true },
   fold = { enable = true },
 }
+
 local wilder = require("wilder");
 wilder.set_option('renderer', wilder.popupmenu_renderer(
   wilder.popupmenu_border_theme({
@@ -162,7 +170,6 @@ wilder.set_option('renderer', wilder.popupmenu_renderer(
   	right = {' ', wilder.popupmenu_scrollbar()},
   })
 ))
-
 
 require("presence").setup({
     auto_update         = true,
@@ -185,7 +192,13 @@ require("presence").setup({
     line_number_text    = "Line %s out of %s",
 })
 
-
 require("notify").setup({
 	render = "compact",
 })
+
+require("bufferline").setup{
+	options = {
+		themable=true,
+		color_icons=true,
+	}
+}
