@@ -21,7 +21,7 @@ local function EnableTransparency()
 	vim.api.nvim_set_hl(0, "Pmenu", { bg = "none" })
 end
 
-local foldtext = function()
+foldtext = function()
 	local title = table.concat(vim.fn.getbufline(vim.api.nvim_get_current_buf(), vim.v.foldstart))
 	return "▼ " .. title
 end
@@ -35,6 +35,11 @@ local function emmet_on_current_line()
 	local user_input = vim.fn.input("Insert Emmet: ")
 	vim.cmd(":Emmet " .. user_input)
 	vim.cmd("startinsert")
+end
+
+local function move_to_buffer()
+	local user_input = vim.fn.input("^W")
+	vim.cmd("LualineBuffersJump " .. user_input)
 end
 
 -- SET VALUES
@@ -61,6 +66,7 @@ opt.undodir = vim.fn.expand("~/.config/nvim/undo")
 opt.cursorline = false
 opt.cursorcolumn = false
 opt.ruler = false
+opt.shell = "bash"
 
 vim.api.nvim_create_autocmd({ "BufNewFile", "BufEnter" }, {
 	pattern = "*", -- Apply to all files
@@ -68,6 +74,7 @@ vim.api.nvim_create_autocmd({ "BufNewFile", "BufEnter" }, {
 		local original_syntax = vim.bo.syntax
 		local original_foldmethod = vim.opt_local.foldmethod:get()
 		local original_foldlevel = vim.opt_local.foldlevel:get()
+
 		vim.bo.syntax = vim.bo.filetype -- Set syntax to match the detected filetype
 		vim.opt_local.foldmethod = "syntax" -- Use syntax-based folding
 		vim.opt_local.foldlevel = 99 -- Start with folds open
@@ -85,7 +92,7 @@ vim.api.nvim_create_autocmd({ "BufNewFile", "BufEnter" }, {
 				vim.bo.syntax = original_syntax
 				vim.opt_local.foldmethod = original_foldmethod
 				vim.opt_local.foldlevel = original_foldlevel
-				vim.notify("Syntax folding not available for this buffer", vim.log.levels.INFO)
+				vim.opt_local.foldcolumn = "0"
 			else
 				vim.opt_local.foldcolumn = "2"
 			end
@@ -94,7 +101,7 @@ vim.api.nvim_create_autocmd({ "BufNewFile", "BufEnter" }, {
 })
 
 -- KEYBINDS & USER COMMANDS
-map("n", "<C-E>", "<Esc>:Neotree right toggle<CR><Esc>:wincmd p<CR>", {
+map("n", "<C-O>", "<Esc>:Neotree right toggle<CR><Esc>:wincmd p<CR>", {
 	noremap = true,
 	silent = true,
 })
@@ -104,7 +111,12 @@ map("n", "<C-g>", "<ESC>:Telescope colorscheme enable_preview=true<CR>", {
 	silent = true,
 })
 
-map("i", "<C-W>", "<Esc>:EmmetPrompt<CR>", {
+map("i", "<C-E>", "<Esc>:EmmetPrompt<CR>", {
+	noremap = true,
+	silent = true,
+})
+
+map("i", "<C-W>", "<Esc>:MoveToBuffer<CR>", {
 	noremap = true,
 	silent = true,
 })
@@ -114,9 +126,15 @@ map("n", "<C-O>", "<Esc>:Neotree float<CR>", {
 	silent = true,
 })
 
+map("i", "<C-h>", "<Left>", { noremap = true, silent = true })
+map("i", "<C-j>", "<Down>", { noremap = true, silent = true })
+map("i", "<C-k>", "<Up>", { noremap = true, silent = true })
+map("i", "<C-l>", "<Right>", { noremap = true, silent = true })
+
 com("EnableTransparency", EnableTransparency, {})
 com("DisableTransparency", DisableTransparency, {})
 com("EmmetPrompt", emmet_on_current_line, {})
+com("MoveToBuffer", move_to_buffer, {})
 
 -- SETUP PLUGINS
 require("neo-tree").setup({
@@ -245,3 +263,5 @@ require("mason").setup({
 		},
 	},
 })
+
+require("livepreview.config").set()

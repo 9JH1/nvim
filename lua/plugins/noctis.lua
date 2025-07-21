@@ -1,1 +1,0 @@
-return {"iagorrr/noctishc.nvim"}
