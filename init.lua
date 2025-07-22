@@ -7,8 +7,8 @@ local map = vim.api.nvim_set_keymap
 local oldmap = vim.keymap.set
 local com = vim.api.nvim_create_user_command
 local theme = require("last-color").recall() or "default"
--- local lsp = require("lsp-zero")
 vim.cmd.colorscheme(theme)
+
 -- FUNCTIONS
 local function EnableTransparency()
 	vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
@@ -292,15 +292,27 @@ local lsp = require("lsp-zero").preset({
 	name = "minimal",
 	set_lsp_keymaps = true,
 	manage_nvim_cmp = true,
-	suggest_lsp_servers = false,
+	suggest_lsp_servers = true,
 })
 
 lsp.setup()
 
 vim.diagnostic.config({
-	virtual_text = true,
-	signs = true,
-	update_in_insert = false,
+	virtual_text = {
+		prefix = "~[",
+		suffix = "]",
+		spacing = 2,
+		severity = { min = vim.diagnostic.severity.WARN },
+	},
+	signs = {
+		text = {
+			[vim.diagnostic.severity.ERROR] = " ",
+			[vim.diagnostic.severity.WARN] = " ",
+			[vim.diagnostic.severity.INFO] = "󰋼 ",
+			[vim.diagnostic.severity.HINT] = "󰌵 ",
+		},
+	},
+	update_in_insert = true,
 	underline = true,
 	severity_sort = false,
 	float = true,
