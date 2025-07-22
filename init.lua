@@ -1,5 +1,4 @@
 require("config.lazy")
-
 -- VARS AND CMDS
 local vim = vim
 local opt = vim.o
@@ -7,12 +6,8 @@ local map = vim.api.nvim_set_keymap
 local oldmap = vim.keymap.set
 local com = vim.api.nvim_create_user_command
 local theme = require("last-color").recall() or "default"
-local lsp = require("lsp-zero")
-lsp.preset("recommended")
-lsp.nvim_workspace()
-lsp.setup()
+-- local lsp = require("lsp-zero")
 vim.cmd.colorscheme(theme)
-
 -- FUNCTIONS
 local function EnableTransparency()
 	vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
@@ -20,7 +15,6 @@ local function EnableTransparency()
 	vim.api.nvim_set_hl(0, "FloatBorder", { bg = "none" })
 	vim.api.nvim_set_hl(0, "Pmenu", { bg = "none" })
 end
-
 foldtext = function()
 	local title = table.concat(vim.fn.getbufline(vim.api.nvim_get_current_buf(), vim.v.foldstart))
 	return "▼ " .. title
@@ -67,8 +61,7 @@ opt.cursorline = false
 opt.cursorcolumn = false
 opt.ruler = false
 opt.shell = "bash"
-opt.wildmenu = true
-opt.wildmode = "full"
+vim.g.ale_completion_enabled = 0
 
 vim.api.nvim_create_autocmd({ "BufNewFile", "BufEnter" }, {
 	pattern = "*", -- Apply to all files
@@ -260,15 +253,15 @@ require("conform").setup({
 	},
 })
 
-require("mason").setup({
-	ui = {
-		icons = {
-			package_installed = "✓",
-			package_pending = "➜",
-			package_uninstalled = "✗",
-		},
-	},
-})
+--require("mason").setup({
+--	ui = {
+--		icons = {
+--			package_installed = "✓",
+--			package_pending = "➜",
+--			package_uninstalled = "✗",
+--		},
+--	},
+--})
 
 require("livepreview.config").set()
 
@@ -295,24 +288,32 @@ require("smart-splits").setup({
 	log_level = "info",
 })
 
-local cmp = require("cmp")
-cmp.setup.cmdline(":", {
-	mapping = cmp.mapping.preset.cmdline(),
-	sources = cmp.config.sources({
-		{ name = "path" },
-	}, {
-		{
-			name = "cmdline",
-			option = {
-				ignore_cmds = { "Man", "!" },
-			},
-		},
-	}),
+-- Enable signs in the gutter for diagnostics
+vim.fn.sign_define("DiagnosticSignError", { text = "❌", texthl = "DiagnosticSignError" })
+vim.fn.sign_define("DiagnosticSignWarn", { text = "⚠️", texthl = "DiagnosticSignWarn" })
+vim.fn.sign_define("DiagnosticSignInfo", { text = "ℹ️", texthl = "DiagnosticSignInfo" })
+vim.fn.sign_define("DiagnosticSignHint", { text = "💡", texthl = "DiagnosticSignHint" })
+
+-- Configure diagnostics to show virtual text only on lines that have errors
+vim.diagnostic.config({
+	virtual_text = {
+		prefix = "●", -- Could be any symbol you like
+		spacing = 2,
+		-- Show virtual text only for errors and warnings
+		severity = { min = vim.diagnostic.severity.WARN },
+	},
+	signs = true, -- Show signs in the gutter
+	update_in_insert = false, -- Update diagnostics only when leaving insert mode
+	underline = true, -- Underline errors in text
+	severity_sort = true, -- Sort diagnostics by severity
 })
 
-cmp.setup.cmdline("/", {
-	mapping = cmp.mapping.preset.cmdline(),
-	sources = {
-		{ name = "buffer" },
-	},
-})
+-- Optional: keymaps to navigate diagnostics
+vim.api.nvim_set_keymap("n", "[d", "<cmd>lua vim.diagnostic.goto_prev()<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("n", "]d", "<cmd>lua vim.diagnostic.goto_next()<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("n", "<leader>e", "<cmd>lua vim.diagnostic.open_float()<CR>", { noremap = true, silent = true })
+
+local lsp = require("lsp-zero")
+lsp.preset("recommended")
+lsp.nvim_workspace()
+lsp.setup()
