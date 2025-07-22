@@ -1,4 +1,5 @@
 require("config.lazy")
+
 -- VARS AND CMDS
 local vim = vim
 local opt = vim.o
@@ -61,7 +62,6 @@ opt.cursorline = false
 opt.cursorcolumn = false
 opt.ruler = false
 opt.shell = "bash"
-vim.g.ale_completion_enabled = 0
 
 vim.api.nvim_create_autocmd({ "BufNewFile", "BufEnter" }, {
 	pattern = "*", -- Apply to all files
@@ -253,15 +253,15 @@ require("conform").setup({
 	},
 })
 
---require("mason").setup({
---	ui = {
---		icons = {
---			package_installed = "✓",
---			package_pending = "➜",
---			package_uninstalled = "✗",
---		},
---	},
---})
+require("mason").setup({
+	ui = {
+		icons = {
+			package_installed = "✓",
+			package_pending = "➜",
+			package_uninstalled = "✗",
+		},
+	},
+})
 
 require("livepreview.config").set()
 
@@ -288,32 +288,42 @@ require("smart-splits").setup({
 	log_level = "info",
 })
 
--- Enable signs in the gutter for diagnostics
-vim.fn.sign_define("DiagnosticSignError", { text = "❌", texthl = "DiagnosticSignError" })
-vim.fn.sign_define("DiagnosticSignWarn", { text = "⚠️", texthl = "DiagnosticSignWarn" })
-vim.fn.sign_define("DiagnosticSignInfo", { text = "ℹ️", texthl = "DiagnosticSignInfo" })
-vim.fn.sign_define("DiagnosticSignHint", { text = "💡", texthl = "DiagnosticSignHint" })
-
--- Configure diagnostics to show virtual text only on lines that have errors
-vim.diagnostic.config({
-	virtual_text = {
-		prefix = "●", -- Could be any symbol you like
-		spacing = 2,
-		-- Show virtual text only for errors and warnings
-		severity = { min = vim.diagnostic.severity.WARN },
-	},
-	signs = true, -- Show signs in the gutter
-	update_in_insert = false, -- Update diagnostics only when leaving insert mode
-	underline = true, -- Underline errors in text
-	severity_sort = true, -- Sort diagnostics by severity
+local lsp = require("lsp-zero").preset({
+	name = "minimal",
+	set_lsp_keymaps = true,
+	manage_nvim_cmp = true,
+	suggest_lsp_servers = false,
 })
 
--- Optional: keymaps to navigate diagnostics
-vim.api.nvim_set_keymap("n", "[d", "<cmd>lua vim.diagnostic.goto_prev()<CR>", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("n", "]d", "<cmd>lua vim.diagnostic.goto_next()<CR>", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("n", "<leader>e", "<cmd>lua vim.diagnostic.open_float()<CR>", { noremap = true, silent = true })
-
-local lsp = require("lsp-zero")
-lsp.preset("recommended")
-lsp.nvim_workspace()
 lsp.setup()
+
+vim.diagnostic.config({
+	virtual_text = true,
+	signs = true,
+	update_in_insert = false,
+	underline = true,
+	severity_sort = false,
+	float = true,
+})
+
+local cmp = require("cmp")
+cmp.setup.cmdline("/", {
+	mapping = cmp.mapping.preset.cmdline(),
+	sources = {
+		{ name = "buffer" },
+	},
+})
+
+cmp.setup.cmdline(":", {
+	mapping = cmp.mapping.preset.cmdline(),
+	sources = cmp.config.sources({
+		{ name = "path" },
+	}, {
+		{
+			name = "cmdline",
+			option = {
+				ignore_cmds = { "Man", "!" },
+			},
+		},
+	}),
+})
