@@ -4,6 +4,7 @@ require("config.lazy")
 local vim = vim
 local opt = vim.o
 local map = vim.api.nvim_set_keymap
+local oldmap = vim.keymap.set
 local com = vim.api.nvim_create_user_command
 local theme = require("last-color").recall() or "default"
 local lsp = require("lsp-zero")
@@ -11,7 +12,6 @@ lsp.preset("recommended")
 lsp.nvim_workspace()
 lsp.setup()
 vim.cmd.colorscheme(theme)
-vim.cmd("call wilder#setup({'modes': [':', '/', '?']})")
 
 -- FUNCTIONS
 local function EnableTransparency()
@@ -67,6 +67,8 @@ opt.cursorline = false
 opt.cursorcolumn = false
 opt.ruler = false
 opt.shell = "bash"
+opt.wildmenu = true
+opt.wildmode = "full"
 
 vim.api.nvim_create_autocmd({ "BufNewFile", "BufEnter" }, {
 	pattern = "*", -- Apply to all files
@@ -101,8 +103,9 @@ vim.api.nvim_create_autocmd({ "BufNewFile", "BufEnter" }, {
 })
 
 -- KEYBINDS & USER COMMANDS
-map("n", "<C-O>", "<Esc>:Neotree right toggle<CR><Esc>:wincmd p<CR>", {
+map("n", "<C-O>", "<Esc>:Neotree float toggle<CR><Esc>:wincmd p<CR>", {
 	noremap = true,
+
 	silent = true,
 })
 
@@ -116,20 +119,34 @@ map("i", "<C-E>", "<Esc>:EmmetPrompt<CR>", {
 	silent = true,
 })
 
-map("i", "<C-W>", "<Esc>:MoveToBuffer<CR>", {
+map("n", "<C-W>", "<Esc>:MoveToBuffer<CR>", {
 	noremap = true,
 	silent = true,
 })
 
-map("n", "<C-O>", "<Esc>:Neotree float<CR>", {
-	noremap = true,
-	silent = true,
-})
+oldmap("n", "<A-h>", require("smart-splits").resize_left)
+oldmap("n", "<A-j>", require("smart-splits").resize_down)
+oldmap("n", "<A-k>", require("smart-splits").resize_up)
+oldmap("n", "<A-l>", require("smart-splits").resize_right)
 
-map("i", "<C-h>", "<Left>", { noremap = true, silent = true })
-map("i", "<C-j>", "<Down>", { noremap = true, silent = true })
-map("i", "<C-k>", "<Up>", { noremap = true, silent = true })
-map("i", "<C-l>", "<Right>", { noremap = true, silent = true })
+-- moving between splits
+oldmap("n", "<C-h>", require("smart-splits").move_cursor_left)
+oldmap("n", "<C-j>", require("smart-splits").move_cursor_down)
+oldmap("n", "<C-k>", require("smart-splits").move_cursor_up)
+oldmap("n", "<C-l>", require("smart-splits").move_cursor_right)
+oldmap("n", "<C-\\>", require("smart-splits").move_cursor_previous)
+
+-- swapping buffers between windows
+oldmap("n", "<leader><leader>h", require("smart-splits").swap_buf_left)
+oldmap("n", "<leader><leader>j", require("smart-splits").swap_buf_down)
+oldmap("n", "<leader><leader>k", require("smart-splits").swap_buf_up)
+oldmap("n", "<leader><leader>l", require("smart-splits").swap_buf_right)
+
+-- not cursor movement events.
+oldmap("i", "<C-h>", "<Left>", { noremap = true, silent = true })
+oldmap("i", "<C-j>", "<Down>", { noremap = true, silent = true })
+oldmap("i", "<C-k>", "<Up>", { noremap = true, silent = true })
+oldmap("i", "<C-l>", "<Right>", { noremap = true, silent = true })
 
 com("EnableTransparency", EnableTransparency, {})
 com("DisableTransparency", DisableTransparency, {})
@@ -174,7 +191,7 @@ require("lualine").setup({
 		lualine_c = {},
 		lualine_x = {},
 		lualine_y = {},
-		lualine_z = {},
+		lualine_z = { "selectioncount", "searchcount" },
 	},
 
 	inactive_sections = {},
@@ -194,17 +211,6 @@ require("nvim-treesitter.configs").setup({
 	fold = { enable = true },
 })
 
-local wilder = require("wilder")
-wilder.set_option(
-	"renderer",
-	wilder.popupmenu_renderer(wilder.popupmenu_border_theme({
-		highlights = { border = "Normal" },
-		border = "rounded",
-		left = { " ", wilder.popupmenu_devicons() },
-		right = { " ", wilder.popupmenu_scrollbar() },
-	}))
-)
-
 require("presence").setup({
 	auto_update = true,
 	neovim_image_text = "The One True Text Editor",
@@ -212,7 +218,7 @@ require("presence").setup({
 	client_id = "793271441293967371",
 	log_level = nil,
 	debounce_timeout = 10,
-	enable_line_number = false,
+	enable_line_number = true,
 	blacklist = {},
 	buttons = true,
 	file_assets = {},
@@ -265,3 +271,48 @@ require("mason").setup({
 })
 
 require("livepreview.config").set()
+
+require("smart-splits").setup({
+	ignored_buftypes = {
+		"nofile",
+		"quickfix",
+		"prompt",
+	},
+	ignored_filetypes = { "NvimTree" },
+	default_amount = 3,
+	at_edge = "wrap",
+	float_win_behavior = "previous",
+	move_cursor_same_row = false,
+	cursor_follows_swapped_bufs = false,
+	ignored_events = {
+		"BufEnter",
+		"WinEnter",
+	},
+	multiplexer_integration = nil,
+	disable_multiplexer_nav_when_zoomed = true,
+	kitty_password = nil,
+	zellij_move_focus_or_tab = false,
+	log_level = "info",
+})
+
+local cmp = require("cmp")
+cmp.setup.cmdline(":", {
+	mapping = cmp.mapping.preset.cmdline(),
+	sources = cmp.config.sources({
+		{ name = "path" },
+	}, {
+		{
+			name = "cmdline",
+			option = {
+				ignore_cmds = { "Man", "!" },
+			},
+		},
+	}),
+})
+
+cmp.setup.cmdline("/", {
+	mapping = cmp.mapping.preset.cmdline(),
+	sources = {
+		{ name = "buffer" },
+	},
+})

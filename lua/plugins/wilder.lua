@@ -1,1 +1,0 @@
-return {'gelguy/wilder.nvim'}
