@@ -7,7 +7,7 @@ local map = vim.api.nvim_set_keymap
 local oldmap = vim.keymap.set
 local com = vim.api.nvim_create_user_command
 local theme = require("last-color").recall() or "default"
-vim.cmd.colorscheme(theme)
+vim.cmd(":silent! colorscheme " .. theme)
 
 -- FUNCTIONS
 local function EnableTransparency()
@@ -62,6 +62,7 @@ opt.cursorline = false
 opt.cursorcolumn = false
 opt.ruler = false
 opt.shell = "bash"
+vim.cmd.hi 'Comment gui=none'
 
 vim.api.nvim_create_autocmd({ "BufNewFile", "BufEnter" }, {
 	pattern = "*", -- Apply to all files
@@ -70,9 +71,9 @@ vim.api.nvim_create_autocmd({ "BufNewFile", "BufEnter" }, {
 		local original_foldmethod = vim.opt_local.foldmethod:get()
 		local original_foldlevel = vim.opt_local.foldlevel:get()
 
-		vim.bo.syntax = vim.bo.filetype -- Set syntax to match the detected filetype
+		vim.bo.syntax = vim.bo.filetype   -- Set syntax to match the detected filetype
 		vim.opt_local.foldmethod = "syntax" -- Use syntax-based folding
-		vim.opt_local.foldlevel = 99 -- Start with folds open
+		vim.opt_local.foldlevel = 99      -- Start with folds open
 		vim.schedule(function()
 			local has_folds = false
 			local max_lines = math.min(vim.fn.line("$"), 1000)
@@ -236,14 +237,7 @@ require("bufferline").setup({
 	},
 })
 
-require("conform").setup({
-	formatters_by_ft = {
-		lua = { "stylua" },
-		c = { "clang-format" },
-		html = { "prettier" },
-		css = { "prettier" },
-	},
-})
+require("conform").setup()
 
 require("conform").setup({
 	format_on_save = {
