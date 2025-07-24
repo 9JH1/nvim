@@ -17,7 +17,7 @@ fi
 
 # download nvim.zip 
 curl -Lo "nvim/nvim.zip" "https://github.com/neovim/neovim/releases/download/v0.11.1/nvim-win64.zip"
-unzip -d "nvim nvim/nvim.zip"
+unzip -d nvim nvim/nvim.zip
 
 rm -rf "~/AppData/Local/nvim"
 mv * ~/AppData/Local/
@@ -44,4 +44,3 @@ function update_nvim(){
 echo "Notes:"
 echo "install a font from nerdfonts.com for icons to work correctly"
 echo "all of the pywal themes will not work"
-
