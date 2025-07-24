@@ -19,8 +19,8 @@ fi
 curl -Lo "n.zip" "https://github.com/neovim/neovim/releases/download/v0.11.1/nvim-win64.zip"
 unzip n.zip
 
-rm -rf "~/AppData/Local/nvim"
-mkdir "~/AppData/Local/nvim/"
+rm -rf ~/AppData/Local/nvim 
+mkdir ~/AppData/Local/nvim
 
 mv * ~/AppData/Local/nvim
 mkdir ~/AppData/Local/wal
