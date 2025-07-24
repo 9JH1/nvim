@@ -33,8 +33,8 @@ fi
 
 # set a custom command :3
 function nvim(){
-  nvim="~/AppData/Local/nvim/nvim-win64/bin/nvim.exe"
-	if [ ! -e "$nvim_" ];then 
+  nvim="$HOME/AppData/Local/nvim/nvim-win64/bin/nvim.exe"
+	if [ ! -e "$nvim" ];then 
 		echo "ERROR: $nvim not found"
 	else 
 		"$nvim" $@
