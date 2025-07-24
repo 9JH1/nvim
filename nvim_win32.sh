@@ -17,7 +17,7 @@ fi
 
 # download nvim.zip 
 curl -Lo "nvim.zip" "https://github.com/neovim/neovim/releases/download/v0.11.1/nvim-win64.zip"
-unzip -d nvim nvim/nvim.zip
+unzip -d nvim.zip
 
 rm -rf "~/AppData/Local/nvim"
 mv * ~/AppData/Local/nvim
@@ -26,19 +26,12 @@ touch ~/AppData/Local/wal/colors-wal.vim
 
 # set a custom command :3
 function nvim(){
-  nvim_="~/nvim/nvim-win64/bin/nvim.exe"
+  nvim_="~/AppData/Local/nvim/nvim-win64/bin/nvim.exe"
 	if [ ! -d "$nvim_" ];then 
 		echo "ERROR: $nvim_ not found"
 	else 
 		"$nvim_" $@
 	fi
-}
-
-function update_nvim(){
-	cd
-	git clone https://github.com/9jh1/nvim 
-	cd nvim 
-	source nvim_win32.sh
 }
 
 echo "Notes:"
