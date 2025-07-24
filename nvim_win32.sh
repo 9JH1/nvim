@@ -19,12 +19,17 @@ fi
 curl -Lo "n.zip" "https://github.com/neovim/neovim/releases/download/v0.11.1/nvim-win64.zip"
 unzip n.zip
 
-rm -rf ~/AppData/Local/nvim 
-mkdir ~/AppData/Local/nvim
+if [ -d ~/AppData/Local/nvim ];then 
+	rm -rf ~/AppData/Local/nvim 
+fi 
 
+mkdir ~/AppData/Local/nvim 
 mv * ~/AppData/Local/nvim
-mkdir ~/AppData/Local/wal
-touch ~/AppData/Local/wal/colors-wal.vim
+
+if [ ! -d ~/AppData/Local/nvim ];then 
+	mkdir ~/AppData/Local/wal
+	touch ~/AppData/Local/wal/colors-wal.vim
+fi 
 
 # set a custom command :3
 function nvim(){
