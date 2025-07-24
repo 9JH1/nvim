@@ -16,11 +16,11 @@ if [ ! -d "nvim" ];then
 fi 
 
 # download nvim.zip 
-curl -Lo "nvim/nvim.zip" "https://github.com/neovim/neovim/releases/download/v0.11.1/nvim-win64.zip"
+curl -Lo "nvim.zip" "https://github.com/neovim/neovim/releases/download/v0.11.1/nvim-win64.zip"
 unzip -d nvim nvim/nvim.zip
 
 rm -rf "~/AppData/Local/nvim"
-mv * ~/AppData/Local/
+mv * ~/AppData/Local/nvim
 mkdir ~/AppData/Local/wal
 touch ~/AppData/Local/wal/colors-wal.vim
 
