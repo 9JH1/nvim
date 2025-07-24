@@ -2,35 +2,6 @@
 
 # run this inside of git bash
 
-cd
-
-# check that git and unzip are installed 
-if [ ! -v "git" ];then
-	echo "ERROR: missing git"
-	exit 
-fi 
-
-if [ ! -v "unzip" ];then 
-	echo "ERROR: missing unzip"
-	exit 
-fi 
-
-if [ ! -v "mkdir" ];then 
-	echo "ERROR: missing mkdir"
-	exit 
-fi 
-
-if [ ! -v "touch" ];then 
-	echo "ERROR: missing touch"
-	exit
-fi 
-
-if [ ! -v "rm" ];then 
-	echo "ERROR: missing rm"
-	exit 
-fi 
-
-
 # remove old dir ( if exists )
 if [  -d "nvim" ];then 
 	rm -rf nvim
@@ -48,10 +19,10 @@ fi
 curl -Lo "nvim/nvim.zip" "https://github.com/neovim/neovim/releases/download/v0.11.1/nvim-win64.zip"
 unzip -d "nvim nvim/nvim.zip"
 
-rm -rf "AppData/Local/nvim"
-mv * AppData/Local/
-mkdir AppData/Local/wal
-touch AppData/Local/wal/colors-wal.vim
+rm -rf "~/AppData/Local/nvim"
+mv * ~/AppData/Local/
+mkdir ~/AppData/Local/wal
+touch ~/AppData/Local/wal/colors-wal.vim
 
 # set a custom command :3
 function nvim(){
