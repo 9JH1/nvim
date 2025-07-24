@@ -5,9 +5,17 @@ local vim = vim
 local opt = vim.o
 local map = vim.api.nvim_set_keymap
 local oldmap = vim.keymap.set
+
+local function safe_colorscheme(name)
+	local ok, err = pcall(vim.cmd, 'colorscheme ' .. name)
+	if not ok then
+		vim.cmd('colorscheme default')
+	end
+end
+
 local com = vim.api.nvim_create_user_command
 local theme = require("last-color").recall() or "default"
-vim.cmd(":silent! colorscheme " .. theme)
+safe_colorscheme(theme);
 
 -- FUNCTIONS
 local function EnableTransparency()
