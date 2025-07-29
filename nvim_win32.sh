@@ -45,10 +45,11 @@ EOM
 
 source $NVIM_FUNC 
 if [ "$SHELL" == *"bash"* ];then 
-	echo $NVIM_FUNC >> ~/.zshrc 
+	echo $NVIM_FUNC >> ~/.bashrc 
 elif [ "$SHELL" == *"zsh"* ];then 
-	echo $NVIM_FUNC >> ~/.bashrc	
+	echo $NVIM_FUNC >> ~/.zshrc	
 else 
+	echo "unknown shell $SHELL"
 	echo "Please put the following in your shell config:"
 	echo $NVIM_FUNC 
 fi
