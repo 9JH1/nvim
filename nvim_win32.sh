@@ -32,6 +32,7 @@ if [ ! -d ~/AppData/Local/nvim ];then
 fi 
 
 # set a custom command :3
+read -r -d '' NVIM_FUNC << EOM 
 function nvim(){
   nvim="$HOME/AppData/Local/nvim/nvim-win64/bin/nvim.exe"
 	if [ ! -e "$nvim" ];then 
@@ -40,7 +41,20 @@ function nvim(){
 		"$nvim" $@
 	fi
 }
+EOM
 
+source $NVIM_FUNC 
+if [ "$SHELL" == *"bash"* ];then 
+	echo $NVIM_FUNC >> ~/.zshrc 
+elif [ "$SHELL" == *"zsh"* ];then 
+	echo $NVIM_FUNC >> ~/.bashrc	
+else 
+	echo "Please put the following in your shell config:"
+	echo $NVIM_FUNC 
+fi
+
+echo "Nvim successfully installed!"
+echo ""
 echo "Notes:"
 echo "install a font from nerdfonts.com for icons to work correctly"
 echo "all of the pywal themes will not work"
