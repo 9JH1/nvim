@@ -25,7 +25,6 @@ fi
 
 mkdir ~/AppData/Local/nvim 
 mv * ~/AppData/Local/nvim
-
 if [ ! -d ~/AppData/Local/wal ];then 
 	mkdir ~/AppData/Local/wal
 	touch ~/AppData/Local/wal/colors-wal.vim
@@ -34,15 +33,20 @@ fi
 # set a custom command :3
 read -r -d '' NVIM_FUNC << EOM 
 function nvim(){
-  nvim_bin=\"$HOME/AppData/Local/nvim/nvim-win64/bin/nvim.exe\"
+  nvim_bin="$HOME/AppData/Local/nvim/nvim-win64/bin/nvim.exe"
 	if [ ! -e \"$nvim_bin\" ];then 
-		echo \"ERROR: \"$nvim_bin\" not found\"
+		echo \"Installing Nvim"
+		git clone https://github.com/9jh1/nvim 
+		cd nvim 
+		source nvim_win32.sh
+		nvim
 	else 
 		\"$nvim_bin\" $@
 	fi
 }
 EOM
 
+# write config function 
 source $NVIM_FUNC 
 if [[ "$SHELL" == *"bash"* ]];then 
 	echo "$NVIM_FUNC" >> ~/.bash_profile 
@@ -54,6 +58,11 @@ else
 	echo $NVIM_FUNC 
 fi
 
+# clean up
+rm -rf ../nvim 
+cd .. 
+
+# done!
 echo "Nvim successfully installed!"
 echo ""
 echo "Notes:"
