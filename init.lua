@@ -341,13 +341,3 @@ cmp.setup.cmdline(":", {
 		},
 	}),
 })
-
-
-require('mason-lspconfig').setup({
-       ensure_installed = {
-				 'css-lsp', -- css 
-				 'emmet-language-server', -- html (with emmet)
-				 'typescript-language-server', -- javascript
-				 'clangd' -- C
-			 }
-})

@@ -26,7 +26,7 @@ fi
 mkdir ~/AppData/Local/nvim 
 mv * ~/AppData/Local/nvim
 
-if [ ! -d ~/AppData/Local/nvim ];then 
+if [ ! -d ~/AppData/Local/wal ];then 
 	mkdir ~/AppData/Local/wal
 	touch ~/AppData/Local/wal/colors-wal.vim
 fi 
@@ -34,19 +34,19 @@ fi
 # set a custom command :3
 read -r -d '' NVIM_FUNC << EOM 
 function nvim(){
-  nvim="$HOME/AppData/Local/nvim/nvim-win64/bin/nvim.exe"
-	if [ ! -e "$nvim" ];then 
-		echo "ERROR: $nvim not found"
+  nvim_bin="$HOME/AppData/Local/nvim/nvim-win64/bin/nvim.exe"
+	if [ ! -e "$nvim_bin" ];then 
+		echo "ERROR: $nvim_bin not found"
 	else 
-		"$nvim" $@
+		"$nvim_bin" $@
 	fi
 }
 EOM
 
 source $NVIM_FUNC 
-if [ "$SHELL" == *"bash"* ];then 
+if [[ "$SHELL" == *"bash"* ]];then 
 	echo $NVIM_FUNC >> ~/.bashrc 
-elif [ "$SHELL" == *"zsh"* ];then 
+elif [ "$SHELL" == *"zsh"* ]];then 
 	echo $NVIM_FUNC >> ~/.zshrc	
 else 
 	echo "unknown shell $SHELL"
