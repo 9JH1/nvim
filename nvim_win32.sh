@@ -34,11 +34,11 @@ fi
 # set a custom command :3
 read -r -d '' NVIM_FUNC << EOM 
 function nvim(){
-  nvim_bin="$HOME/AppData/Local/nvim/nvim-win64/bin/nvim.exe"
-	if [ ! -e "$nvim_bin" ];then 
-		echo "ERROR: $nvim_bin not found"
+  nvim_bin=\"$HOME/AppData/Local/nvim/nvim-win64/bin/nvim.exe\"
+	if [ ! -e \"$nvim_bin\" ];then 
+		echo \"ERROR: \"$nvim_bin\" not found\"
 	else 
-		"$nvim_bin" $@
+		\"$nvim_bin\" $@
 	fi
 }
 EOM
