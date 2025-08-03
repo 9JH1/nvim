@@ -41,10 +41,13 @@ function nvim(){
 		source nvim_win32.sh
 		nvim
 	else 
-		\"$nvim_bin\" $@
+		"$nvim_bin" $@
 	fi
 }
 EOM
+
+# source
+$NVIM_FUNC
 
 # write config function 
 if [[ "$SHELL" == *"bash"* ]];then 
