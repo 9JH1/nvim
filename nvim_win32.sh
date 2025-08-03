@@ -34,8 +34,8 @@ fi
 read -r -d '' NVIM_FUNC << EOM 
 function nvim(){
   nvim_bin="$HOME/AppData/Local/nvim/nvim-win64/bin/nvim.exe"
-	if [ ! -e \"$nvim_bin\" ];then 
-		echo \"Installing Nvim"
+	if [ ! -e "$nvim_bin" ];then 
+		echo "Installing Nvim"
 		git clone https://github.com/9jh1/nvim 
 		cd nvim 
 		source nvim_win32.sh
@@ -47,7 +47,6 @@ function nvim(){
 EOM
 
 # write config function 
-source $NVIM_FUNC 
 if [[ "$SHELL" == *"bash"* ]];then 
 	echo "$NVIM_FUNC" >> ~/.bash_profile 
 elif [ "$SHELL" == *"zsh"* ]];then 
