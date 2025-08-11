@@ -245,16 +245,6 @@ require("bufferline").setup({
 	},
 })
 
-require("conform").setup()
-
-require("conform").setup({
-	format_on_save = {
-		-- These options will be passed to conform.format()
-		timeout_ms = 2000,
-		lsp_format = "prettier",
-	},
-})
-
 require("mason").setup({
 	ui = {
 		icons = {
@@ -335,9 +325,7 @@ cmp.setup.cmdline(":", {
 	}, {
 		{
 			name = "cmdline",
-			option = {
-				ignore_cmds = { "Man", "!" },
-			},
+			option = {},
 		},
 	}),
 })
