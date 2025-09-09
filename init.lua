@@ -39,11 +39,10 @@ end
 
 -- SET VALUES
 vim.notify = require("notify")
-opt.laststatus = 3
+opt.laststatus = 1
 vim.opt.fillchars = { fold = " " }
 opt.background = "dark"
 opt.termguicolors = true
-opt.signcolumn = "yes"
 opt.rnu = true
 opt.mouse = "a"
 opt.nu = true
@@ -62,6 +61,8 @@ opt.cursorline = false
 opt.cursorcolumn = false
 opt.ruler = false
 opt.shell = "bash"
+opt.showtabline = 0 
+opt.cmdheight = 0
 
 vim.api.nvim_create_autocmd({ "BufNewFile", "BufEnter" }, {
 	pattern = "*", -- Apply to all files
@@ -88,8 +89,10 @@ vim.api.nvim_create_autocmd({ "BufNewFile", "BufEnter" }, {
 				vim.opt_local.foldmethod = original_foldmethod
 				vim.opt_local.foldlevel = original_foldlevel
 				vim.opt_local.foldcolumn = "0"
+				vim.opt.signcolumn = "no"
 			else
 				vim.opt_local.foldcolumn = "2"
+				opt.signcolumn = "yes"
 			end
 		end)
 	end,
@@ -162,38 +165,22 @@ require("neo-tree").setup({
 
 require("colorizer").setup({ "*" })
 require("lualine").setup({
-	tabline = {
-		lualine_a = { "mode" },
-		lualine_b = { "filetype" },
-		lualine_c = { "filesize" },
-		lualine_x = { "diagnostics" },
-		lualine_y = { "progress" },
-		lualine_z = { "location" },
-	},
-
 	sections = {
-		lualine_a = {
-			{
-				"buffers",
-				show_filename_only = true,
-				mode = 2,
-				use_mode_colors = true,
-			},
-		},
-		lualine_b = {},
+		lualine_a = {"mode"},
+		lualine_b = {"path"},
 		lualine_c = {},
 		lualine_x = {},
-		lualine_y = {},
-		lualine_z = { "selectioncount", "searchcount" },
+		lualine_y = {"location"},
+		lualine_z = {"progress"},
 	},
 
-	inactive_sections = {},
+	inactive_sections = {tabline},
 	options = {
 		theme = "auto",
 		icons_enabled = true,
 		section_separators = {
-			left = " ",
-			right = "",
+			left = "",
+			right = "",
 		},
 	},
 })
@@ -229,12 +216,13 @@ require("notify").setup({
 	render = "compact",
 })
 
-require("bufferline").setup({
-	options = {
+require('bufferline').setup {
+  options = {
 		themable = true,
 		color_icons = true,
-	},
-})
+    always_show_bufferline = false, 
+  }
+}
 
 require("conform").setup({
 	formatters_by_ft = {
@@ -245,13 +233,6 @@ require("conform").setup({
 	},
 })
 
-require("conform").setup({
-	format_on_save = {
-		-- These options will be passed to conform.format()
-		timeout_ms = 2000,
-		lsp_format = "prettier",
-	},
-})
 
 require("mason").setup({
 	ui = {
