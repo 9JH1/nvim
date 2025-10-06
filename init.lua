@@ -16,6 +16,7 @@ local function EnableTransparency()
 	vim.api.nvim_set_hl(0, "FloatBorder", { bg = "none" })
 	vim.api.nvim_set_hl(0, "Pmenu", { bg = "none" })
 end
+
 foldtext = function()
 	local title = table.concat(vim.fn.getbufline(vim.api.nvim_get_current_buf(), vim.v.foldstart))
 	return "▼ " .. title
@@ -39,7 +40,7 @@ end
 
 -- SET VALUES
 vim.notify = require("notify")
-opt.laststatus = 1
+opt.laststatus = 3 
 vim.opt.fillchars = { fold = " " }
 opt.background = "dark"
 opt.termguicolors = true
@@ -99,9 +100,8 @@ vim.api.nvim_create_autocmd({ "BufNewFile", "BufEnter" }, {
 })
 
 -- KEYBINDS & USER COMMANDS
-map("n", "<C-O>", "<Esc>:Neotree float toggle<CR><Esc>:wincmd p<CR>", {
+map("n", "<C-O>", "<Esc>:Telescope find_files<CR>", {
 	noremap = true,
-
 	silent = true,
 })
 
@@ -118,6 +118,21 @@ map("i", "<C-E>", "<Esc>:EmmetPrompt<CR>", {
 map("n", "<C-W>", "<Esc>:MoveToBuffer<CR>", {
 	noremap = true,
 	silent = true,
+})
+
+map("n","C-A","<Esc>:BufferLineCyclePrev<CR>",{
+	noremap = true,
+	silent = true,
+});
+
+map("n","C-D","<Esc>:BufferLineCycleNext<CR>",{
+	noremap = true,
+	silent = true,
+})
+
+map("n","<C-i>", "<Esc>:Telescope buffers<CR>", {
+	noremap = true,
+	silent = true
 })
 
 oldmap("n", "<A-h>", require("smart-splits").resize_left)
@@ -166,12 +181,13 @@ require("neo-tree").setup({
 require("colorizer").setup({ "*" })
 require("lualine").setup({
 	sections = {
-		lualine_a = {"mode"},
-		lualine_b = {"path"},
-		lualine_c = {},
-		lualine_x = {},
-		lualine_y = {"location"},
-		lualine_z = {"progress"},
+		lualine_a = {},
+		lualine_b = {"mode"},
+		lualine_c = {"filename","filesize"},
+
+		lualine_x = {"lsp_status","diagnostics"},
+		lualine_y = {"location","progress","searchcount"},
+		lualine_z = {},
 	},
 
 	inactive_sections = {tabline},
@@ -182,6 +198,11 @@ require("lualine").setup({
 			left = "",
 			right = "",
 		},
+		component_separators = { 
+			left = "", 
+			right = "", 
+		},
+		padding = 1,
 	},
 })
 
@@ -221,6 +242,11 @@ require('bufferline').setup {
 		themable = true,
 		color_icons = true,
     always_show_bufferline = false, 
+		buffer_close_icon="",
+		modified_icon = "[]",
+		close_icon="",
+		color_icon = false,
+		show_buffer_icons = false
   }
 }
 
