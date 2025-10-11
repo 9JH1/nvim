@@ -9,6 +9,7 @@ local com = vim.api.nvim_create_user_command
 local theme = require("last-color").recall() or "default"
 -- local lsp = require("lsp-zero")
 vim.cmd.colorscheme(theme)
+vim.cmd('autocmd FileType c,cpp setlocal cinoptions+=L0')
 -- FUNCTIONS
 local function EnableTransparency()
 	vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
@@ -40,7 +41,7 @@ end
 
 -- SET VALUES
 vim.notify = require("notify")
-opt.laststatus = 3 
+opt.laststatus = 3
 vim.opt.fillchars = { fold = " " }
 opt.background = "dark"
 opt.termguicolors = true
@@ -62,7 +63,7 @@ opt.cursorline = false
 opt.cursorcolumn = false
 opt.ruler = false
 opt.shell = "bash"
-opt.showtabline = 0 
+opt.showtabline = 0
 opt.cmdheight = 0
 
 vim.api.nvim_create_autocmd({ "BufNewFile", "BufEnter" }, {
@@ -72,9 +73,9 @@ vim.api.nvim_create_autocmd({ "BufNewFile", "BufEnter" }, {
 		local original_foldmethod = vim.opt_local.foldmethod:get()
 		local original_foldlevel = vim.opt_local.foldlevel:get()
 
-		vim.bo.syntax = vim.bo.filetype -- Set syntax to match the detected filetype
+		vim.bo.syntax = vim.bo.filetype   -- Set syntax to match the detected filetype
 		vim.opt_local.foldmethod = "syntax" -- Use syntax-based folding
-		vim.opt_local.foldlevel = 99 -- Start with folds open
+		vim.opt_local.foldlevel = 99      -- Start with folds open
 		vim.schedule(function()
 			local has_folds = false
 			local max_lines = math.min(vim.fn.line("$"), 1000)
@@ -120,17 +121,17 @@ map("n", "<C-W>", "<Esc>:MoveToBuffer<CR>", {
 	silent = true,
 })
 
-map("n","C-A","<Esc>:BufferLineCyclePrev<CR>",{
+map("n", "C-A", "<Esc>:BufferLineCyclePrev<CR>", {
 	noremap = true,
 	silent = true,
 });
 
-map("n","C-D","<Esc>:BufferLineCycleNext<CR>",{
+map("n", "C-D", "<Esc>:BufferLineCycleNext<CR>", {
 	noremap = true,
 	silent = true,
 })
 
-map("n","<C-i>", "<Esc>:Telescope buffers<CR>", {
+map("n", "<C-i>", "<Esc>:Telescope buffers<CR>", {
 	noremap = true,
 	silent = true
 })
@@ -177,20 +178,21 @@ require("neo-tree").setup({
 		statusline = false,
 	},
 })
+vim.cmd("Neotree right")
 
 require("colorizer").setup({ "*" })
 require("lualine").setup({
 	sections = {
 		lualine_a = {},
-		lualine_b = {"mode"},
-		lualine_c = {"filename","filesize"},
+		lualine_b = { "mode" },
+		lualine_c = { "filename", "filesize" },
 
-		lualine_x = {"lsp_status","diagnostics"},
-		lualine_y = {"location","progress","searchcount"},
+		lualine_x = { "lsp_status", "diagnostics" },
+		lualine_y = { "location", "progress", "searchcount" },
 		lualine_z = {},
 	},
 
-	inactive_sections = {tabline},
+	inactive_sections = { tabline },
 	options = {
 		theme = "auto",
 		icons_enabled = true,
@@ -198,13 +200,15 @@ require("lualine").setup({
 			left = "",
 			right = "",
 		},
-		component_separators = { 
-			left = "", 
-			right = "", 
+		component_separators = {
+			left = "",
+			right = "",
 		},
 		padding = 1,
 	},
 })
+
+
 
 require("nvim-treesitter.configs").setup({
 	ensure_installed = { "c" },
@@ -238,16 +242,16 @@ require("notify").setup({
 })
 
 require('bufferline').setup {
-  options = {
+	options = {
 		themable = true,
 		color_icons = true,
-    always_show_bufferline = false, 
-		buffer_close_icon="",
+		always_show_bufferline = false,
+		buffer_close_icon = "",
 		modified_icon = "[]",
-		close_icon="",
+		close_icon = "",
 		color_icon = false,
 		show_buffer_icons = false
-  }
+	}
 }
 
 require("conform").setup({
@@ -334,3 +338,20 @@ cmp.setup.cmdline(":", {
 		},
 	}),
 })
+
+require('telescope').setup {
+	defaults = {
+		-- Customize the layout for all pickers
+		layout_strategy = 'horizontal', -- or 'vertical'
+		layout_config = { horizontal = { width = 0.9 } },
+		-- Customize border for all pickers
+		border = {},
+		borderchars = { '─', '│', '─', '│', '╭', '╮', '╯', '╰' },
+		-- Other theme-related defaults can be set here
+	},
+	-- extensions = {
+	--   themes = {
+	--     layout_config = { ... },
+	--   },
+	-- },
+}
