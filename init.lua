@@ -22,7 +22,6 @@ foldtext = function()
 	local title = table.concat(vim.fn.getbufline(vim.api.nvim_get_current_buf(), vim.v.foldstart))
 	return "▼ " .. title
 end
-
 local function DisableTransparency()
 	local last_colorscheme = require("last-color").recall() or "default"
 	vim.cmd.colorscheme(last_colorscheme)
@@ -180,12 +179,44 @@ require("neo-tree").setup({
 })
 vim.cmd("Neotree right")
 
+local function get_wordcount()
+  local word_count = 0
+
+  if vim.fn.mode():find("[vV]") then
+    word_count = vim.fn.wordcount().visual_words
+  else
+    word_count = vim.fn.wordcount().words
+  end
+
+  return word_count
+end
+
+local function wordcount()
+  local label = "word"
+  local word_count = get_wordcount()
+
+  if word_count > 1 then
+    label = label .. "s"
+  end
+
+  return word_count .. " " .. label
+end
+
+local wpm = require("wpm");
+
 require("colorizer").setup({ "*" })
 require("lualine").setup({
 	sections = {
 		lualine_a = {},
 		lualine_b = { "mode" },
-		lualine_c = { "filename", "filesize" },
+		lualine_c = { "filename", "filesize",
+		{
+			wordcount, cond = is_prose
+		},
+		{
+			wpm.wpm_component, cond = is_prose
+		}
+	},
 
 		lualine_x = { "lsp_status", "diagnostics" },
 		lualine_y = { "location", "progress", "searchcount" },
