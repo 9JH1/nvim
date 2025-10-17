@@ -135,6 +135,11 @@ map("n", "<C-i>", "<Esc>:Telescope buffers<CR>", {
 	silent = true
 })
 
+map("n", "<C-t>","<Esc>:Telescope diagnostics<CR>",{
+	noremap = true,
+	silent = true,
+})
+
 oldmap("n", "<A-h>", require("smart-splits").resize_left)
 oldmap("n", "<A-j>", require("smart-splits").resize_down)
 oldmap("n", "<A-k>", require("smart-splits").resize_up)
@@ -192,7 +197,7 @@ local function get_wordcount()
 end
 
 local function wordcount()
-  local label = "word"
+  local label = "Word"
   local word_count = get_wordcount()
 
   if word_count > 1 then
@@ -232,7 +237,7 @@ require("lualine").setup({
 			right = "",
 		},
 		component_separators = {
-			left = "",
+			left = "|",
 			right = "",
 		},
 		padding = 1,
