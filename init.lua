@@ -15,6 +15,21 @@ require("scrollbar").setup({
 				text="",
 			}
 		}
+	})
+
+-- Show cursorcolumn only in the current (focused) window
+vim.api.nvim_create_autocmd({ "WinEnter", "BufEnter" }, {
+  pattern = "*",
+  callback = function()
+    vim.wo.cursorline = true
+  end,
+})
+
+vim.api.nvim_create_autocmd({ "WinLeave", "BufLeave" }, {
+  pattern = "*",
+  callback = function()
+    vim.wo.cursorline = false
+  end,
 })
 
 -- local lsp = require("lsp-zero")
