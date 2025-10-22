@@ -7,6 +7,16 @@ local map = vim.api.nvim_set_keymap
 local oldmap = vim.keymap.set
 local com = vim.api.nvim_create_user_command
 local theme = require("last-color").recall() or "default"
+
+require("scrollbar").setup({
+    show = true,
+		marks = {
+			Cursor={
+				text="",
+			}
+		}
+})
+
 -- local lsp = require("lsp-zero")
 vim.cmd.colorscheme(theme)
 vim.cmd('autocmd FileType c,cpp setlocal cinoptions+=L0')
@@ -17,7 +27,6 @@ local function EnableTransparency()
 	vim.api.nvim_set_hl(0, "FloatBorder", { bg = "none" })
 	vim.api.nvim_set_hl(0, "Pmenu", { bg = "none" })
 end
-
 foldtext = function()
 	local title = table.concat(vim.fn.getbufline(vim.api.nvim_get_current_buf(), vim.v.foldstart))
 	return "▼ " .. title
@@ -46,6 +55,7 @@ opt.background = "dark"
 opt.termguicolors = true
 opt.rnu = true
 opt.mouse = "a"
+opt.shell = "/bin/zsh"
 opt.nu = true
 opt.wrap = false
 opt.numberwidth = 1
@@ -54,11 +64,12 @@ opt.shiftwidth = 2
 opt.swapfile = false
 opt.autoread = true
 opt.backup = true
+opt.guicursor = 'n-v-c:block,i-ci-ve:block-blinkwait700-blinkoff400-blinkon250'
 opt.backupdir = vim.fn.expand("~/.config/nvim/backups")
 opt.undofile = true
 vim.opt.foldtext = "v:lua.foldtext()"
 opt.undodir = vim.fn.expand("~/.config/nvim/undo")
-opt.cursorline = false
+opt.cursorline = true
 opt.cursorcolumn = false
 opt.ruler = false
 opt.shell = "bash"
@@ -247,7 +258,7 @@ require("lualine").setup({
 
 
 require("nvim-treesitter.configs").setup({
-	ensure_installed = { "c" },
+	ensure_installed = { "c", "html" },
 	highlight = { enable = true },
 	fold = { enable = true },
 })
@@ -373,6 +384,10 @@ cmp.setup.cmdline(":", {
 			},
 		},
 	}),
+})
+
+require('nvim-devdocs').setup({
+	ensure_installed = { "c" },
 })
 
 require('telescope').setup {
