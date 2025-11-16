@@ -70,7 +70,6 @@ opt.background = "dark"
 opt.termguicolors = true
 opt.rnu = true
 opt.mouse = "a"
-opt.shell = "/bin/zsh"
 opt.nu = true
 opt.wrap = false
 opt.numberwidth = 1
@@ -79,7 +78,6 @@ opt.shiftwidth = 2
 opt.swapfile = false
 opt.autoread = true
 opt.backup = true
-opt.guicursor = 'n-v-c:block,i-ci-ve:block-blinkwait700-blinkoff400-blinkon250'
 opt.backupdir = vim.fn.expand("~/.config/nvim/backups")
 opt.undofile = true
 vim.opt.foldtext = "v:lua.foldtext()"
@@ -88,7 +86,7 @@ opt.cursorline = true
 opt.cursorcolumn = false
 opt.ruler = false
 opt.shell = "bash"
-opt.showtabline = 0
+opt.showtabline = 1
 opt.cmdheight = 0
 
 vim.api.nvim_create_autocmd({ "BufNewFile", "BufEnter" }, {
@@ -131,6 +129,11 @@ map("n", "<C-O>", "<Esc>:Telescope find_files<CR>", {
 	silent = true,
 })
 
+map("n", "<C-E>", "<Esc>:Neotree toggle<CR>", {
+	noremap = true,
+	silent = true,
+})
+
 map("n", "<C-g>", "<ESC>:Telescope colorscheme enable_preview=true<CR>", {
 	noremap = true,
 	silent = true,
@@ -146,12 +149,12 @@ map("n", "<C-W>", "<Esc>:MoveToBuffer<CR>", {
 	silent = true,
 })
 
-map("n", "C-A", "<Esc>:BufferLineCyclePrev<CR>", {
+map("n", "<C-A>", "<Esc>:BufferLineCyclePrev<CR>", {
 	noremap = true,
 	silent = true,
 });
 
-map("n", "C-D", "<Esc>:BufferLineCycleNext<CR>", {
+map("n", "<C-D>", "<Esc>:BufferLineCycleNext<CR>", {
 	noremap = true,
 	silent = true,
 })
@@ -203,6 +206,8 @@ require("neo-tree").setup({
 		width = 0,
 		max_width = 40,
 	},
+	close_if_last_window = true,
+
 	source_selector = {
 		winbar = false,
 		statusline = false,
@@ -241,20 +246,23 @@ require("lualine").setup({
 		lualine_a = {},
 		lualine_b = { "mode" },
 		lualine_c = { "filename", "filesize",
-		{
-			wordcount, cond = is_prose
+			{
+				wordcount, cond = is_prose
+			},
+			{
+				wpm.wpm_component, cond = is_prose
+			}
 		},
-		{
-			wpm.wpm_component, cond = is_prose
-		}
-	},
 
 		lualine_x = { "lsp_status", "diagnostics" },
 		lualine_y = { "location", "progress", "searchcount" },
-		lualine_z = {},
+		lualine_z = {}
 	},
 
-	inactive_sections = { tabline },
+	tablime = {
+		lualine_a = {"buffers"}
+	},
+
 	options = {
 		theme = "auto",
 		icons_enabled = true,
@@ -278,43 +286,9 @@ require("nvim-treesitter.configs").setup({
 	fold = { enable = true },
 })
 
-require("presence").setup({
-	auto_update = true,
-	neovim_image_text = "The One True Text Editor",
-	main_image = "neovim",
-	client_id = "793271441293967371",
-	log_level = nil,
-	debounce_timeout = 10,
-	enable_line_number = true,
-	blacklist = {},
-	buttons = true,
-	file_assets = {},
-	show_time = true,
-	editing_text = "Editing %s",
-	file_explorer_text = "Browsing %s",
-	git_commit_text = "Committing changes",
-	plugin_manager_text = "Managing plugins",
-	reading_text = "Reading %s",
-	workspace_text = "Working on %s",
-	line_number_text = "Line %s out of %s",
-})
-
 require("notify").setup({
 	render = "compact",
 })
-
-require('bufferline').setup {
-	options = {
-		themable = true,
-		color_icons = true,
-		always_show_bufferline = false,
-		buffer_close_icon = "",
-		modified_icon = "[]",
-		close_icon = "",
-		color_icon = false,
-		show_buffer_icons = false
-	}
-}
 
 require("conform").setup({
 	formatters_by_ft = {
@@ -370,9 +344,25 @@ local lsp = require("lsp-zero").preset({
 
 lsp.setup()
 
+local signs = {
+  Error = "x",
+  Warn = "!",
+  Hint = "h",
+  Info = "i"
+}
+
 vim.diagnostic.config({
+	signs = {
+    active = true,
+		text = {
+			[vim.diagnostic.severity.ERROR] = signs.Error,
+			[vim.diagnostic.severity.WARN] = signs.Warn,
+			[vim.diagnostic.severity.HINT] = signs.Hint,
+			[vim.diagnostic.severity.INFO] = signs.Info
+		}
+  },
+	upadte_in_insert = false,
 	virtual_text = true,
-	signs = true,
 	update_in_insert = false,
 	underline = true,
 	severity_sort = false,
@@ -421,3 +411,47 @@ require('telescope').setup {
 	--   },
 	-- },
 }
+
+local ranger_nvim = require("ranger-nvim")
+ranger_nvim.setup({
+  enable_cmds = false,
+  replace_netrw = true,
+  keybinds = {
+    ["ov"] = ranger_nvim.OPEN_MODE.vsplit,
+    ["oh"] = ranger_nvim.OPEN_MODE.split,
+  },
+  ui = {
+    border = "rounded",
+    height = 0.90,
+    width = 0.90,
+    x = 0.5,
+    y = 0.5,
+  }
+})
+
+require("image").setup({
+	backend = "ueberzug"
+})
+
+require("bufferline").setup({
+	options = {
+		mode = "buffers",
+		style_preset = require("bufferline").style_preset.minimal,
+		themeable = true,
+		numbers = "ordinal",
+		always_show_bufferline = false,
+
+		indicator = {
+			style = "none",
+			diagnostics = "nvim_lsp",
+		},
+
+		tab_size = 0,
+
+		show_buffer_icons = false,
+		show_buffer_close_icons = false,
+		show_close_icon = false,
+		show_tab_indicators = false,
+		seperator_style = "thin",
+	}
+})

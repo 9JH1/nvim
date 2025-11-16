@@ -1,5 +1,5 @@
 # My NeoVim .files
-these are my nvim dotfiles, a perfect config and a even more perfect ide adds for a productive day. Enjoy.. or dont.
+these are my nvim otfiles, a perfect config and a even more perfect ide adds for a productive day. Enjoy.. or dont.
 ## Install (Unix):
 ```bash
 mv $HOME/.config/nvim $HOME/.config/nvim_old
