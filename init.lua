@@ -6,18 +6,7 @@ local opt = vim.o
 local map = vim.api.nvim_set_keymap
 local oldmap = vim.keymap.set
 local com = vim.api.nvim_create_user_command
-local theme = require("last-color").recall() or "default"
 
-require("scrollbar").setup({
-    show = true,
-		marks = {
-			Cursor={
-				text="",
-			}
-		}
-	})
-
--- Show cursorcolumn only in the current (focused) window
 vim.api.nvim_create_autocmd({ "WinEnter", "BufEnter" }, {
   pattern = "*",
   callback = function()
@@ -32,9 +21,8 @@ vim.api.nvim_create_autocmd({ "WinLeave", "BufLeave" }, {
   end,
 })
 
--- local lsp = require("lsp-zero")
-vim.cmd.colorscheme(theme)
 vim.cmd('autocmd FileType c,cpp setlocal cinoptions+=L0')
+
 -- FUNCTIONS
 local function EnableTransparency()
 	vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
@@ -42,32 +30,11 @@ local function EnableTransparency()
 	vim.api.nvim_set_hl(0, "FloatBorder", { bg = "none" })
 	vim.api.nvim_set_hl(0, "Pmenu", { bg = "none" })
 end
-foldtext = function()
-	local title = table.concat(vim.fn.getbufline(vim.api.nvim_get_current_buf(), vim.v.foldstart))
-	return "▼ " .. title
-end
-local function DisableTransparency()
-	local last_colorscheme = require("last-color").recall() or "default"
-	vim.cmd.colorscheme(last_colorscheme)
-end
-
-local function emmet_on_current_line()
-	local user_input = vim.fn.input("Insert Emmet: ")
-	vim.cmd(":Emmet " .. user_input)
-	vim.cmd("startinsert")
-end
-
-local function move_to_buffer()
-	local user_input = vim.fn.input("^W")
-	vim.cmd("LualineBuffersJump " .. user_input)
-end
 
 -- SET VALUES
-vim.notify = require("notify")
 opt.laststatus = 3
-vim.opt.fillchars = { fold = " " }
 opt.background = "dark"
-opt.termguicolors = true
+opt.termguicolors = false
 opt.rnu = true
 opt.mouse = "a"
 opt.nu = true
@@ -80,7 +47,6 @@ opt.autoread = true
 opt.backup = true
 opt.backupdir = vim.fn.expand("~/.config/nvim/backups")
 opt.undofile = true
-vim.opt.foldtext = "v:lua.foldtext()"
 opt.undodir = vim.fn.expand("~/.config/nvim/undo")
 opt.cursorline = true
 opt.cursorcolumn = false
@@ -139,16 +105,6 @@ map("n", "<C-g>", "<ESC>:Telescope colorscheme enable_preview=true<CR>", {
 	silent = true,
 })
 
-map("i", "<C-E>", "<Esc>:EmmetPrompt<CR>", {
-	noremap = true,
-	silent = true,
-})
-
-map("n", "<C-W>", "<Esc>:MoveToBuffer<CR>", {
-	noremap = true,
-	silent = true,
-})
-
 map("n", "<C-A>", "<Esc>:BufferLineCyclePrev<CR>", {
 	noremap = true,
 	silent = true,
@@ -168,6 +124,8 @@ map("n", "<C-t>","<Esc>:Telescope diagnostics<CR>",{
 	noremap = true,
 	silent = true,
 })
+
+oldmap("n", "gh", "<esc>:URLOpenUnderCursor<cr>")
 
 oldmap("n", "<A-h>", require("smart-splits").resize_left)
 oldmap("n", "<A-j>", require("smart-splits").resize_down)
@@ -194,9 +152,6 @@ oldmap("i", "<C-k>", "<Up>", { noremap = true, silent = true })
 oldmap("i", "<C-l>", "<Right>", { noremap = true, silent = true })
 
 com("EnableTransparency", EnableTransparency, {})
-com("DisableTransparency", DisableTransparency, {})
-com("EmmetPrompt", emmet_on_current_line, {})
-com("MoveToBuffer", move_to_buffer, {})
 
 -- SETUP PLUGINS
 require("neo-tree").setup({
@@ -213,23 +168,16 @@ require("neo-tree").setup({
 		statusline = false,
 	},
 })
-vim.cmd("Neotree right")
-
-local function get_wordcount()
-  local word_count = 0
-
-  if vim.fn.mode():find("[vV]") then
-    word_count = vim.fn.wordcount().visual_words
-  else
-    word_count = vim.fn.wordcount().words
-  end
-
-  return word_count
-end
 
 local function wordcount()
   local label = "Word"
-  local word_count = get_wordcount()
+  local word_count;
+
+	if vim.fn.mode():find("[vV]") then 
+		word_count = vim.fn.wordcount().visual_words
+	else 
+		word_count = vim.fn.wordcount().words 
+	end
 
   if word_count > 1 then
     label = label .. "s"
@@ -238,9 +186,7 @@ local function wordcount()
   return word_count .. " " .. label
 end
 
-local wpm = require("wpm");
 
-require("colorizer").setup({ "*" })
 require("lualine").setup({
 	sections = {
 		lualine_a = {},
@@ -249,9 +195,6 @@ require("lualine").setup({
 			{
 				wordcount, cond = is_prose
 			},
-			{
-				wpm.wpm_component, cond = is_prose
-			}
 		},
 
 		lualine_x = { "lsp_status", "diagnostics" },
@@ -286,10 +229,6 @@ require("nvim-treesitter.configs").setup({
 	fold = { enable = true },
 })
 
-require("notify").setup({
-	render = "compact",
-})
-
 require("conform").setup({
 	formatters_by_ft = {
 		lua = { "stylua" },
@@ -298,7 +237,6 @@ require("conform").setup({
 		css = { "prettier" },
 	},
 })
-
 
 require("mason").setup({
 	ui = {
@@ -391,10 +329,6 @@ cmp.setup.cmdline(":", {
 	}),
 })
 
-require('nvim-devdocs').setup({
-	ensure_installed = { "c" },
-})
-
 require('telescope').setup {
 	defaults = {
 		-- Customize the layout for all pickers
@@ -427,10 +361,6 @@ ranger_nvim.setup({
     x = 0.5,
     y = 0.5,
   }
-})
-
-require("image").setup({
-	backend = "ueberzug"
 })
 
 require("bufferline").setup({
