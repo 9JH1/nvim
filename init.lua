@@ -1,21 +1,15 @@
 require("config.lazy")
 
+-- Load the last colorscheme
+local theme = require('last-color').recall() or 'default'
+vim.cmd.colorscheme(theme)
+
 -- VARS AND CMDS
 local vim = vim
 local opt = vim.o
 local map = vim.api.nvim_set_keymap
 local oldmap = vim.keymap.set
 local com = vim.api.nvim_create_user_command
-local theme = require("last-color").recall() or "default"
-
-require("scrollbar").setup({
-    show = true,
-		marks = {
-			Cursor={
-				text="",
-			}
-		}
-	})
 
 -- Show cursorcolumn only in the current (focused) window
 vim.api.nvim_create_autocmd({ "WinEnter", "BufEnter" }, {
@@ -32,9 +26,25 @@ vim.api.nvim_create_autocmd({ "WinLeave", "BufLeave" }, {
   end,
 })
 
--- local lsp = require("lsp-zero")
-vim.cmd.colorscheme(theme)
+-- Restore cursor position when reopening files
+vim.api.nvim_create_autocmd("BufReadPost", {
+	callback = function()
+		local mark = vim.api.nvim_buf_get_mark(0, '"')
+		local row = mark[1]
+		local col = mark[2]
+
+		if row > 0 and row <= vim.api.nvim_buf_line_count(0) then
+			-- Avoid jumping in special files (e.g. git commit messages)
+			if vim.bo.filetype ~= "gitcommit" and vim.bo.filetype ~= "gitrebase" then
+				vim.api.nvim_win_set_cursor(0, {row, col})
+			end
+		end
+	end,
+})
+
+
 vim.cmd('autocmd FileType c,cpp setlocal cinoptions+=L0')
+
 -- FUNCTIONS
 local function EnableTransparency()
 	vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
@@ -42,45 +52,24 @@ local function EnableTransparency()
 	vim.api.nvim_set_hl(0, "FloatBorder", { bg = "none" })
 	vim.api.nvim_set_hl(0, "Pmenu", { bg = "none" })
 end
-foldtext = function()
-	local title = table.concat(vim.fn.getbufline(vim.api.nvim_get_current_buf(), vim.v.foldstart))
-	return "▼ " .. title
-end
-local function DisableTransparency()
-	local last_colorscheme = require("last-color").recall() or "default"
-	vim.cmd.colorscheme(last_colorscheme)
-end
-
-local function emmet_on_current_line()
-	local user_input = vim.fn.input("Insert Emmet: ")
-	vim.cmd(":Emmet " .. user_input)
-	vim.cmd("startinsert")
-end
-
-local function move_to_buffer()
-	local user_input = vim.fn.input("^W")
-	vim.cmd("LualineBuffersJump " .. user_input)
-end
 
 -- SET VALUES
-vim.notify = require("notify")
 opt.laststatus = 3
 vim.opt.fillchars = { fold = " " }
 opt.background = "dark"
-opt.termguicolors = true
+opt.termguicolors = false
 opt.rnu = true
 opt.mouse = "a"
 opt.nu = true
-opt.wrap = false
+opt.wrap = true
 opt.numberwidth = 1
-opt.tabstop = 2
-opt.shiftwidth = 2
+opt.tabstop = 4
+opt.shiftwidth = 4
 opt.swapfile = false
-opt.autoread = true
+opt.autoread = false
 opt.backup = true
 opt.backupdir = vim.fn.expand("~/.config/nvim/backups")
 opt.undofile = true
-vim.opt.foldtext = "v:lua.foldtext()"
 opt.undodir = vim.fn.expand("~/.config/nvim/undo")
 opt.cursorline = true
 opt.cursorcolumn = false
@@ -129,22 +118,7 @@ map("n", "<C-O>", "<Esc>:Telescope find_files<CR>", {
 	silent = true,
 })
 
-map("n", "<C-E>", "<Esc>:Neotree toggle<CR>", {
-	noremap = true,
-	silent = true,
-})
-
 map("n", "<C-g>", "<ESC>:Telescope colorscheme enable_preview=true<CR>", {
-	noremap = true,
-	silent = true,
-})
-
-map("i", "<C-E>", "<Esc>:EmmetPrompt<CR>", {
-	noremap = true,
-	silent = true,
-})
-
-map("n", "<C-W>", "<Esc>:MoveToBuffer<CR>", {
 	noremap = true,
 	silent = true,
 })
@@ -169,6 +143,16 @@ map("n", "<C-t>","<Esc>:Telescope diagnostics<CR>",{
 	silent = true,
 })
 
+map("n", "gh", "<esc>:URLOpenUnderCursor<cr>", {
+	noremap = true,
+	silent = true
+})
+
+map("n", "<leader>ef","<Esc>:Yazi<CR>", {
+	noremap = true,
+	silent = true
+})
+
 oldmap("n", "<A-h>", require("smart-splits").resize_left)
 oldmap("n", "<A-j>", require("smart-splits").resize_down)
 oldmap("n", "<A-k>", require("smart-splits").resize_up)
@@ -187,6 +171,7 @@ oldmap("n", "<leader><leader>j", require("smart-splits").swap_buf_down)
 oldmap("n", "<leader><leader>k", require("smart-splits").swap_buf_up)
 oldmap("n", "<leader><leader>l", require("smart-splits").swap_buf_right)
 
+
 -- not cursor movement events.
 oldmap("i", "<C-h>", "<Left>", { noremap = true, silent = true })
 oldmap("i", "<C-j>", "<Down>", { noremap = true, silent = true })
@@ -194,26 +179,6 @@ oldmap("i", "<C-k>", "<Up>", { noremap = true, silent = true })
 oldmap("i", "<C-l>", "<Right>", { noremap = true, silent = true })
 
 com("EnableTransparency", EnableTransparency, {})
-com("DisableTransparency", DisableTransparency, {})
-com("EmmetPrompt", emmet_on_current_line, {})
-com("MoveToBuffer", move_to_buffer, {})
-
--- SETUP PLUGINS
-require("neo-tree").setup({
-	window = {
-		position = "left",
-		auto_expand_width = true,
-		width = 0,
-		max_width = 40,
-	},
-	close_if_last_window = true,
-
-	source_selector = {
-		winbar = false,
-		statusline = false,
-	},
-})
-vim.cmd("Neotree right")
 
 local function get_wordcount()
   local word_count = 0
@@ -238,9 +203,7 @@ local function wordcount()
   return word_count .. " " .. label
 end
 
-local wpm = require("wpm");
 
-require("colorizer").setup({ "*" })
 require("lualine").setup({
 	sections = {
 		lualine_a = {},
@@ -249,9 +212,6 @@ require("lualine").setup({
 			{
 				wordcount, cond = is_prose
 			},
-			{
-				wpm.wpm_component, cond = is_prose
-			}
 		},
 
 		lualine_x = { "lsp_status", "diagnostics" },
@@ -286,32 +246,6 @@ require("nvim-treesitter.configs").setup({
 	fold = { enable = true },
 })
 
-require("notify").setup({
-	render = "compact",
-})
-
-require("conform").setup({
-	formatters_by_ft = {
-		lua = { "stylua" },
-		c = { "clang-format" },
-		html = { "prettier" },
-		css = { "prettier" },
-	},
-})
-
-
-require("mason").setup({
-	ui = {
-		icons = {
-			package_installed = "✓",
-			package_pending = "➜",
-			package_uninstalled = "✗",
-		},
-	},
-})
-
-require("livepreview.config").set()
-
 require("smart-splits").setup({
 	ignored_buftypes = {
 		"nofile",
@@ -334,15 +268,6 @@ require("smart-splits").setup({
 	zellij_move_focus_or_tab = false,
 	log_level = "info",
 })
-
-local lsp = require("lsp-zero").preset({
-	name = "minimal",
-	set_lsp_keymaps = true,
-	manage_nvim_cmp = true,
-	suggest_lsp_servers = false,
-})
-
-lsp.setup()
 
 local signs = {
   Error = "x",
@@ -369,69 +294,14 @@ vim.diagnostic.config({
 	float = true,
 })
 
-local cmp = require("cmp")
-cmp.setup.cmdline("/", {
-	mapping = cmp.mapping.preset.cmdline(),
-	sources = {
-		{ name = "buffer" },
-	},
-})
-
-cmp.setup.cmdline(":", {
-	mapping = cmp.mapping.preset.cmdline(),
-	sources = cmp.config.sources({
-		{ name = "path" },
-	}, {
-		{
-			name = "cmdline",
-			option = {
-				ignore_cmds = { "Man", "!" },
-			},
-		},
-	}),
-})
-
-require('nvim-devdocs').setup({
-	ensure_installed = { "c" },
-})
-
 require('telescope').setup {
 	defaults = {
-		-- Customize the layout for all pickers
 		layout_strategy = 'horizontal', -- or 'vertical'
 		layout_config = { horizontal = { width = 0.9 } },
-		-- Customize border for all pickers
 		border = {},
-		borderchars = { '─', '│', '─', '│', '╭', '╮', '╯', '╰' },
-		-- Other theme-related defaults can be set here
+		borderchars = { '-', '|', '-', '|', '+', '+', '+', '+' },
 	},
-	-- extensions = {
-	--   themes = {
-	--     layout_config = { ... },
-	--   },
-	-- },
 }
-
-local ranger_nvim = require("ranger-nvim")
-ranger_nvim.setup({
-  enable_cmds = false,
-  replace_netrw = true,
-  keybinds = {
-    ["ov"] = ranger_nvim.OPEN_MODE.vsplit,
-    ["oh"] = ranger_nvim.OPEN_MODE.split,
-  },
-  ui = {
-    border = "rounded",
-    height = 0.90,
-    width = 0.90,
-    x = 0.5,
-    y = 0.5,
-  }
-})
-
-require("image").setup({
-	backend = "ueberzug"
-})
 
 require("bufferline").setup({
 	options = {
@@ -455,3 +325,34 @@ require("bufferline").setup({
 		seperator_style = "thin",
 	}
 })
+
+local cmp = require("cmp")
+
+vim.lsp.config('clangd', {
+  cmd = {'clangd'},
+  filetypes = {'c', 'h'},
+  root_markers = {},
+})
+
+vim.lsp.enable('clangd')
+
+cmp.setup.cmdline("/", {
+	mapping = cmp.mapping.preset.cmdline(),
+	sources = {
+		{ name = "buffer" },
+		{ name = "nvim_lsp" }
+	},
+})
+
+cmp.setup.cmdline(":", {
+	mapping = cmp.mapping.preset.cmdline(),
+	sources = cmp.config.sources({
+		{ name = "path" },
+	},
+	{
+		{
+			name = "cmdline",
+		},
+	}),
+})
+
